@@ -1,13 +1,14 @@
 const api = require('../api');
-const WebSocketServer = require('websocket').server;
 const http = require('http');
 const reset = require('./reset');
 const assert = require('assert');
 const {killSwarm} = require('../test-daemon/swarmSetup');
 
 
+
+
 // Run if not testing in browser
-(typeof window === 'undefined' ? describe : describe.skip)('redirect', () => {
+(typeof window === 'undefined' ? describe.skip : describe.skip)('redirect', () => {
 
     beforeEach(reset);
 
@@ -17,20 +18,36 @@ const {killSwarm} = require('../test-daemon/swarmSetup');
 
     } else {
 
-        const followerPort = 8101;
+        const followerPort = parseInt(process.env.port) + 1;
         let httpServer;
 
         before(async () => {
 
-            // Here we're going to mock the daemon with a simple redirect message.
+            // Here we're going to mock the daemon with a simple redirect message
+            // to the real one.
 
-            httpServer = http.createServer();
-            await httpServer.listen(followerPort);
+            const proto_path = __dirname + '/../service.proto';
 
-            const ws = new WebSocketServer({
-                httpServer: httpServer,
-                autoAcceptConnections: true
-            });
+            const protocol = grpc.load(proto_path);
+
+
+            const server = new grpc.Server();
+
+            const CommandProcessors = {
+                Create: (call, callback) => {
+
+                    callback(null, {
+                        response: {
+                            ack: true
+                        }
+                    });
+
+                }
+            };
+
+            server.addService(protocol.Bluzelle.service, CommandProcessors);
+            server.bind('localhost:' + followerPort, grpc.ServerCredentials.createInsecure());
+            server.start();
 
 
             ws.on('connect', connection =>
@@ -55,7 +72,7 @@ const {killSwarm} = require('../test-daemon/swarmSetup');
 
     it('should follow a redirect and send the command to a different socket', async () => {
 
-        api.connect(`ws://${process.env.address}:${parseInt(process.env.port) + 1}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+        api.connect(`${process.env.address}:${parseInt(process.env.port) + 1}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
 
         await api.create('hey', 123);
         assert(await api.read('hey') === 123);

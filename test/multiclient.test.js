@@ -22,9 +22,9 @@ const api2 = require('../api');
     describe('two clients with different UUID\'s interacting with the same key', () => {
 
         beforeEach(() => {
-            api1.connect(`ws://${process.env.address}:${process.env.port}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
+            api1.connect(`${process.env.address}:${process.env.port}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
 
-            api2.connect(`ws://${process.env.address}:${process.env.port}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+            api2.connect(`${process.env.address}:${process.env.port}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
         });
 
         // it('api1 should be able to ping the connection', () =>
@@ -152,9 +152,9 @@ const api2 = require('../api');
     describe('two clients with the same UUID\'s interacting with the same key', () => {
 
         beforeEach(() => {
-            api1.connect(`ws://${process.env.address}:${process.env.port}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
+            api1.connect(`${process.env.address}:${process.env.port}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
 
-            api2.connect(`ws://${process.env.address}:${process.env.port}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
+            api2.connect(`${process.env.address}:${process.env.port}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
         });
 
         // it('api1 should be able to ping the connection', () =>

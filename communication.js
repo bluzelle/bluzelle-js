@@ -1,22 +1,9 @@
 const WebSocket = require('isomorphic-ws');
+const grpc = require('grpc');
 
 const connections = new Set();
 const resolvers = new Map();
 const messages = new Map();
-
-
-// Disabled until we can get confirmation that this is implemented in the
-// daemon.
-
-// const ping = () => new Promise(resolve => {
-//
-//     send({
-//         cmd: 'ping',
-//         'bzn-api': 'ping'
-//     }, obj => resolve());
-//
-// });
-
 
 
 // Non-polling actions
@@ -33,176 +20,122 @@ const messages = new Map();
 // - update
 
 
-let uuid;
-let address;
 
-const connect = (addr, id) => {
-    uuid = id;
-    address = addr;
-};
+let db_uuid;
+let connection;
 
+const connect = (addr, _db_uuid) => {
+    db_uuid = _db_uuid;
 
-const onMessage = (event, socket) => {
+    if(connection) {
 
-
-    const request = messages.get(event['request-id']);
-    const resolver = resolvers.get(event['request-id']);
-
-    resolvers.delete(event['request-id']);
-    messages.delete(event['request-id']);
-
-
-    if(event['request-id'] === undefined) {
-
-        throw new Error('Received non-response message.');
+        disconnect();
 
     }
+    
 
-    if(event.error && event.error === 'NOT_THE_LEADER') {
+    const proto_path = __dirname + '/service.proto';
 
-        const isSecure = address.startsWith('wss://');
-
-        const prefix = isSecure ? 'wss://' : 'ws://';
-
-        const addressAndPort = prefix + event.data['leader-host'] + ':' + event.data['leader-port'];
-
-        connect(addressAndPort, uuid);
-
-        send(request, resolver);
+    const protocol = grpc.load(proto_path);
 
 
-    } else {
-
-        resolver(event);
-
-    }
-
+    connection = new protocol.Bluzelle(addr, 
+            grpc.credentials.createInsecure());
 };
 
 
+const disconnect = () => {
 
-// const disconnect = () => 
-//     Promise.all(Array.from(connections).map(con => 
-//         new Promise(resolve => {
-
-//         con.onclose = () => {
-
-//             connections.delete(con);
-//             resolve();
-
-//         };
-
-//         con.close();
-
-//     })));
-
-
-const amendBznApi = obj =>
-    Object.assign(obj, {
-        'bzn-api': 'crud'
-    });
-
-const amendUuid = (uuid, obj) =>
-    Object.assign(obj, {
-        'db-uuid': uuid
-    });
-
-
-const amendRequestID = (() => {
-
-    let requestIDCounter = 0;
-
-    return obj =>
-        Object.assign(obj, {
-            'request-id': requestIDCounter++
-        });
-
-})();
-
-
-const send = (obj, resolver, rejecter) => {
-
-    const message = amendUuid(uuid , amendRequestID(obj));
-
-
-    resolvers.set(message['request-id'], resolver);
-    messages.set(message['request-id'], message);
-
-
-    const s = new WebSocket(address);
-
-    s.onopen = () => {
-
-        s.send(JSON.stringify(message));
-
-    };
-
-    s.onerror = e =>  {
-
-        s.close();
-        rejecter(e);
-
-    };
-
-    s.onmessage = e => {
-        onMessage(JSON.parse(e.data), s);
-        s.close();
-    };
+    connection.close();
 
 };
-
 
 
 // Non-polling actions
 
 const read = key => new Promise((resolve, reject) => {
 
-    const cmd = amendBznApi({
-        cmd: 'read',
-        data: {
-            key
+    connection.Read({
+
+        header: {
+            db_uuid
+        },
+
+        key
+
+    }, function(err, response) {
+
+        if(err) {
+            reject(err);
+        } else {
+            resolve(response.value);
         }
+
     });
-
-
-    send(cmd, obj =>
-        obj.error ? reject(new Error(obj.error)) : resolve(obj.data.value), reject);
 
 });
 
 
 const has = key => new Promise((resolve, reject) => {
 
-    const cmd = amendBznApi({
-        cmd: 'has',
-        data: {
-            key
+    connection.Has({
+
+        header: {
+            db_uuid
+        },
+
+        key
+
+    }, function(err, response) {
+
+        if(err) {
+            reject(err);
+        } else {
+            resolve(response.value);
         }
+
     });
-
-
-    send(cmd, obj => resolve(obj.data['key-exists']), reject);
 
 });
 
 
 const keys = () => new Promise((resolve, reject) => {
 
-    const cmd = amendBznApi({
-        cmd: 'keys'
-    });
+    connection.Keys({
 
-    send(cmd, obj => resolve(obj.data.keys), reject);
+        header: {
+            db_uuid
+        }
+
+    }, function(err, response) {
+
+        if(err) {
+            reject(err);
+        } else {
+            resolve(response.keys);
+        }
+
+    });
 
 });
 
 const size = () => new Promise(resolve => {
 
-    const cmd = amendBznApi({
-        cmd: 'size'
-    });
+    connection.Size({
 
-    send(cmd, obj => resolve(obj.data.size));
+        header: {
+            db_uuid
+        }
+
+    }, function(err, response) {
+
+        if(err) {
+            reject(err);
+        } else {
+            resolve(response.size);
+        }
+
+    });
 
 });
 
@@ -251,19 +184,21 @@ const poll = action => new Promise((resolve, reject) => {
 
 const update = (key, value) => new Promise((resolve, reject) => {
 
-    const cmd = amendBznApi({
-        cmd: 'update',
-        data: {
-            key, value
-        }
-    });
+    connection.Update({
 
-    send(cmd, obj => {
+        header: {
+            db_uuid
+        },
 
-        if(obj.error) {
+        key,
+        value
 
-            reject(new Error(obj.error));
+    }, function(err, response) {
 
+        if(err) {
+            
+            reject(err);
+        
         } else {
 
             const pollingFunc = () => 
@@ -274,26 +209,28 @@ const update = (key, value) => new Promise((resolve, reject) => {
 
         }
 
-    }, reject);
+    });
 
 });
 
 
 const create = (key, value) => new Promise((resolve, reject) => {
 
-    const cmd = amendBznApi({
-        cmd: 'create',
-        data: {
-            key, value
-        }
-    });
+    connection.Create({
 
-    send(cmd, obj => {
+        header: {
+            db_uuid
+        },
 
-        if(obj.error) {
+        key,
+        value
 
-            reject(new Error(obj.error));
+    }, function(err, response) {
 
+        if(err) {
+            
+            reject(err);
+        
         } else {
 
             const pollingFunc = () => 
@@ -304,7 +241,7 @@ const create = (key, value) => new Promise((resolve, reject) => {
 
         }
 
-    }, reject);
+    });
 
 });
 
@@ -312,20 +249,20 @@ const create = (key, value) => new Promise((resolve, reject) => {
 
 const remove = key => new Promise((resolve, reject) => {
 
-    const cmd = amendBznApi({
-        cmd: 'delete',
-        data: {
-            key
-        }
-    });
+    connection.Delete({
 
+        header: {
+            db_uuid
+        },
 
-    send(cmd, obj => {
+        key
 
-        if(obj.error) {
+    }, function(err, response) {
 
-            reject(new Error(obj.error));
-
+        if(err) {
+            
+            reject(err);
+        
         } else {
 
             const pollingFunc = () => 
@@ -336,13 +273,12 @@ const remove = key => new Promise((resolve, reject) => {
 
         }
 
-    }, reject);
+    });
 
 });
 
 
 module.exports = {
-    getUuid: () => uuid,
     connect,
     create,
     read,

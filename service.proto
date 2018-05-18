@@ -1,0 +1,154 @@
+syntax = "proto3";
+
+service Bluzelle {
+    
+    rpc Create(CreateRequest) returns (AckOrRedirect) {}
+    rpc Read(ReadRequest) returns (ReadResponse) {}
+    rpc Update(UpdateRequest) returns (AckOrRedirect) {}
+    rpc Delete(DeleteRequest) returns (AckOrRedirect) {}
+
+    rpc Has(HasRequest) returns (HasResponse) {}
+    rpc Keys(KeysRequest) returns (KeysResponse) {}
+
+    rpc Size(SizeRequest) returns (SizeResponse) {}
+    rpc RaftState(RaftStateRequest) returns (RaftStateResponse) {}
+
+}
+
+
+// Communicating peer list
+
+
+message RequestHeader {
+
+    string db_uuid = 1;
+    
+}
+
+message RedirectResponse {
+ 
+    string leader_id = 1;
+    string leader_name = 2;
+    string leader_host = 3;
+    uint32 leader_port = 4;
+
+}
+
+
+
+message CreateRequest {
+    
+    RequestHeader header = 1;
+
+    string key = 2;
+    string value = 3;    
+
+}
+
+
+message AckOrRedirect {
+    
+    oneof response {
+
+        RedirectResponse redirect = 1;
+        bool ack = 2;
+
+    }
+
+}
+
+
+message ReadRequest {
+
+    RequestHeader header = 1;
+
+    string key = 2;
+    
+}
+
+message ReadResponse {
+    
+    string value = 4;
+
+}
+
+
+
+message UpdateRequest {
+
+    RequestHeader header = 1;
+
+    string key = 2;
+    string value = 3;  
+    
+}
+
+
+
+message DeleteRequest {
+
+    RequestHeader header = 1;
+
+    string key = 2;
+    
+}
+
+
+
+message HasRequest {
+
+    RequestHeader header = 1;
+
+    string key = 2;
+    
+}
+
+message HasResponse {
+    
+    bool value = 1;
+
+}
+
+
+message KeysRequest {
+
+    RequestHeader header = 1;
+    
+}
+
+message KeysResponse {
+
+    repeated string keys = 1;
+    
+}
+
+
+message SizeRequest {
+
+    RequestHeader header = 1;
+    
+}
+
+message SizeResponse {
+
+    int32 size = 1;
+    
+}
+
+
+
+message RaftStateRequest {
+    
+}
+
+message RaftStateResponse {
+
+    enum RaftState {
+        LEADER = 1;
+        FOLLOWER = 2;
+        ELECTION = 3;
+    }
+
+    RaftState state = 1;
+    
+}
