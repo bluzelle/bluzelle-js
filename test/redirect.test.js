@@ -5,20 +5,25 @@ const reset = require('./reset');
 const assert = require('assert');
 const {killSwarm} = require('../test-daemon/swarmSetup');
 
+const bluzelle_pb = require('../bluzelle_pb');
+const database_pb = require('../database_pb');
+
+const {decode} = require('base64-arraybuffer');
+
 
 // Run if not testing in browser
 (typeof window === 'undefined' ? describe : describe.skip)('redirect', () => {
 
     beforeEach(reset);
 
+    const followerPort = 8101;
+    let httpServer;
+
     if (process.env.daemonIntegration) {
 
         afterEach(killSwarm);
 
     } else {
-
-        const followerPort = 8101;
-        let httpServer;
 
         before(async () => {
 
@@ -34,19 +39,38 @@ const {killSwarm} = require('../test-daemon/swarmSetup');
 
 
             ws.on('connect', connection =>
-                connection.on('message', ({utf8Data: message}) => {
+                connection.on('message', ({utf8Data}) => {
 
-                    const id = JSON.parse(message)['request-id'];
+                    const command = JSON.parse(utf8Data);
 
-                    connection.send(JSON.stringify({
-                        'request-id': id,
-                        error: 'NOT_THE_LEADER',
-                        data: {
-                            "leader-id": "137a8403-52ec-43b7-8083-91391d4c5e67",
-                            "leader-host": "127.0.0.1",
-                            "leader-port": 8100 // Proper emulator
-                        }
-                    }));
+                    if(command.bzn_api !== 'database') {
+                        assert(false);
+                    }
+
+                    const base64 = command.msg;
+                    const typedArr = new Uint8Array(decode(base64));
+
+                    const db_msg = bluzelle_pb.bzn_msg.deserializeBinary(typedArr).getDb();
+
+                    const header = db_msg.getHeader();
+
+
+                    const db_response = new database_pb.database_response();
+
+                    db_response.setHeader(header);
+
+
+                    const redirect = new database_pb.database_redirect_response();
+
+                    redirect.setLeaderId("137a8403-52ec-43b7-8083-91391d4c5e67");
+                    redirect.setLeaderName('Sanchez');
+                    redirect.setLeaderHost('127.0.0.1');
+                    redirect.setLeaderPort(8100);
+
+                    db_response.setRedirect(redirect);
+
+                    connection.sendBytes(Buffer.from(db_response.serializeBinary()));
+
                 }));
         });
 
@@ -55,7 +79,7 @@ const {killSwarm} = require('../test-daemon/swarmSetup');
 
     it('should follow a redirect and send the command to a different socket', async () => {
 
-        api.connect(`ws://${process.env.address}:${parseInt(process.env.port) + 1}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+        api.connect(`ws://127.0.0.1:${followerPort}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
 
         await api.create('hey', 123);
         assert(await api.read('hey') === 123);

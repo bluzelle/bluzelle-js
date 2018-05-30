@@ -36,6 +36,7 @@ describe('bluzelle connection', () => {
 
     // });
 
+
     it('should be able to create and read base64 strings', async () => {
 
         await communication.create('mykey', 'abcdef');

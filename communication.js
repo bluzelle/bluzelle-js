@@ -1,22 +1,14 @@
 const WebSocket = require('isomorphic-ws');
+const bluzelle_pb = require('./bluzelle_pb');
+const database_pb = require('./database_pb');
+const {encode} = require('base64-arraybuffer');
+
+const assert = require('assert');
 
 const connections = new Set();
 const resolvers = new Map();
+const rejecters = new Map();
 const messages = new Map();
-
-
-// Disabled until we can get confirmation that this is implemented in the
-// daemon.
-
-// const ping = () => new Promise(resolve => {
-//
-//     send({
-//         cmd: 'ping',
-//         'bzn-api': 'ping'
-//     }, obj => resolve());
-//
-// });
-
 
 
 // Non-polling actions
@@ -42,38 +34,43 @@ const connect = (addr, id) => {
 };
 
 
-const onMessage = (event, socket) => {
+const onMessage = (bin, socket) => {
+    
+    const response = database_pb.database_response.deserializeBinary(new Uint8Array(bin)).toObject();
+
+    const id = response.header.transactionId;
+
+    const message = messages.get(id);
+    const resolver = resolvers.get(id);
+    const rejecter = rejecters.get(id);
+
+    resolvers.delete(id);
+    rejecters.delete(id);
+    messages.delete(id);
 
 
-    const request = messages.get(event['request-id']);
-    const resolver = resolvers.get(event['request-id']);
-
-    resolvers.delete(event['request-id']);
-    messages.delete(event['request-id']);
-
-
-    if(event['request-id'] === undefined) {
+    if(id === undefined) {
 
         throw new Error('Received non-response message.');
 
     }
 
-    if(event.error && event.error === 'NOT_THE_LEADER') {
+    if(response.redirect) {
 
         const isSecure = address.startsWith('wss://');
 
         const prefix = isSecure ? 'wss://' : 'ws://';
 
-        const addressAndPort = prefix + event.data['leader-host'] + ':' + event.data['leader-port'];
+        const addressAndPort = prefix + response.redirect.leaderHost + ':' + response.redirect.leaderPort;
 
         connect(addressAndPort, uuid);
 
-        send(request, resolver);
+        send(message, resolver, rejecter);
 
 
     } else {
 
-        resolver(event);
+        resolver(response.resp);
 
     }
 
@@ -97,43 +94,38 @@ const onMessage = (event, socket) => {
 //     })));
 
 
-const amendBznApi = obj =>
-    Object.assign(obj, {
-        'bzn-api': 'crud'
-    });
-
-const amendUuid = (uuid, obj) =>
-    Object.assign(obj, {
-        'db-uuid': uuid
-    });
 
 
-const amendRequestID = (() => {
+const getTransactionId = (() => {
 
-    let requestIDCounter = 0;
+    let counter = 0;
 
-    return obj =>
-        Object.assign(obj, {
-            'request-id': requestIDCounter++
-        });
+    return () => counter++;
 
 })();
 
 
-const send = (obj, resolver, rejecter) => {
+const send = (database_msg, resolver, rejecter) => {
 
-    const message = amendUuid(uuid , amendRequestID(obj));
+    const message = new bluzelle_pb.bzn_msg();
 
+    message.setDb(database_msg);
 
-    resolvers.set(message['request-id'], resolver);
-    messages.set(message['request-id'], message);
+    const tid = database_msg.getHeader().getTransactionId();
+
+    resolvers.set(tid, resolver);
+    rejecters.set(tid, rejecter);
+    messages.set(tid, database_msg);
 
 
     const s = new WebSocket(address);
 
     s.onopen = () => {
 
-        s.send(JSON.stringify(message));
+        s.send(JSON.stringify({
+            bzn_api: 'database',
+            msg: encode(message.serializeBinary())
+        }));
 
     };
 
@@ -145,7 +137,7 @@ const send = (obj, resolver, rejecter) => {
     };
 
     s.onmessage = e => {
-        onMessage(JSON.parse(e.data), s);
+        onMessage(e.data, s);
         s.close();
     };
 
@@ -157,52 +149,87 @@ const send = (obj, resolver, rejecter) => {
 
 const read = key => new Promise((resolve, reject) => {
 
-    const cmd = amendBznApi({
-        cmd: 'read',
-        data: {
-            key
-        }
-    });
+    const database_msg = new database_pb.database_msg();
+    const header = new database_pb.database_header();
+
+    header.setDbUuid(uuid);
+    header.setTransactionId(getTransactionId());
+
+    database_msg.setHeader(header);
+
+    const database_read = new bluzelle_pb.database_read();
+
+    database_read.setKey(key);
+
+    database_msg.setRead(database_read);
 
 
-    send(cmd, obj =>
-        obj.error ? reject(new Error(obj.error)) : resolve(obj.data.value), reject);
+    send(database_msg, obj => 
+        obj.error ? reject(new Error(obj.error)) : resolve(obj.value), reject);
 
 });
 
 
 const has = key => new Promise((resolve, reject) => {
 
-    const cmd = amendBznApi({
-        cmd: 'has',
-        data: {
-            key
-        }
-    });
+    const database_msg = new database_pb.database_msg();
+    const header = new database_pb.database_header();
+
+    header.setDbUuid(uuid);
+    header.setTransactionId(getTransactionId());
+
+    database_msg.setHeader(header);
+
+    const database_has = new bluzelle_pb.database_has();
+
+    database_has.setKey(key);
+
+    database_msg.setHas(database_has);
 
 
-    send(cmd, obj => resolve(obj.data['key-exists']), reject);
+    send(database_msg, obj => 
+        obj.error ? reject(new Error(obj.error)) : resolve(obj.has), reject);
 
 });
 
 
 const keys = () => new Promise((resolve, reject) => {
 
-    const cmd = amendBznApi({
-        cmd: 'keys'
-    });
+    const database_msg = new database_pb.database_msg();
+    const header = new database_pb.database_header();
 
-    send(cmd, obj => resolve(obj.data.keys), reject);
+    header.setDbUuid(uuid);
+    header.setTransactionId(getTransactionId());
+
+    database_msg.setHeader(header);
+
+    const database_empty = new bluzelle_pb.database_empty();
+
+    database_msg.setKeys(database_empty);
+
+
+    send(database_msg, obj => 
+        obj.error ? reject(new Error(obj.error)) : resolve(obj.keysList), reject);
 
 });
 
-const size = () => new Promise(resolve => {
+const size = () => new Promise((resolve, reject) => {
 
-    const cmd = amendBznApi({
-        cmd: 'size'
-    });
+    const database_msg = new database_pb.database_msg();
+    const header = new database_pb.database_header();
 
-    send(cmd, obj => resolve(obj.data.size));
+    header.setDbUuid(uuid);
+    header.setTransactionId(getTransactionId());
+
+    database_msg.setHeader(header);
+
+    const database_empty = new bluzelle_pb.database_empty();
+
+    database_msg.setSize(database_empty);
+
+
+    send(database_msg, obj => 
+        obj.error ? reject(new Error(obj.error)) : resolve(obj.size), reject);
 
 });
 
@@ -251,14 +278,27 @@ const poll = action => new Promise((resolve, reject) => {
 
 const update = (key, value) => new Promise((resolve, reject) => {
 
-    const cmd = amendBznApi({
-        cmd: 'update',
-        data: {
-            key, value
-        }
-    });
+    const database_msg = new database_pb.database_msg();
 
-    send(cmd, obj => {
+    const header = new database_pb.database_header();
+
+    header.setDbUuid(uuid);
+    header.setTransactionId(getTransactionId());
+
+    database_msg.setHeader(header);
+
+
+    const database_update = new database_pb.database_update();
+
+    database_update.setKey(key);
+
+    database_update.setValue(value);
+
+
+    database_msg.setUpdate(database_update);
+
+
+    send(database_msg, obj => {
 
         if(obj.error) {
 
@@ -281,14 +321,27 @@ const update = (key, value) => new Promise((resolve, reject) => {
 
 const create = (key, value) => new Promise((resolve, reject) => {
 
-    const cmd = amendBznApi({
-        cmd: 'create',
-        data: {
-            key, value
-        }
-    });
+    const database_msg = new database_pb.database_msg();
 
-    send(cmd, obj => {
+    const header = new database_pb.database_header();
+
+    header.setDbUuid(uuid);
+    header.setTransactionId(getTransactionId());
+
+    database_msg.setHeader(header);
+
+
+    const database_create = new database_pb.database_create();
+
+    database_create.setKey(key);
+
+    database_create.setValue(value);
+
+
+    database_msg.setCreate(database_create);
+
+
+    send(database_msg, obj => {
 
         if(obj.error) {
 
@@ -312,15 +365,24 @@ const create = (key, value) => new Promise((resolve, reject) => {
 
 const remove = key => new Promise((resolve, reject) => {
 
-    const cmd = amendBznApi({
-        cmd: 'delete',
-        data: {
-            key
-        }
-    });
+    const database_msg = new database_pb.database_msg();
+
+    const header = new database_pb.database_header();
+
+    header.setDbUuid(uuid);
+    header.setTransactionId(getTransactionId());
+
+    database_msg.setHeader(header);
 
 
-    send(cmd, obj => {
+    const database_delete = new database_pb.database_delete();
+
+    database_delete.setKey(key);
+
+    database_msg.setDelete(database_delete);
+
+
+    send(database_msg, obj => {
 
         if(obj.error) {
 

@@ -1998,7 +1998,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<number>}
  * @const
  */
-proto.database_response.response.repeatedFields_ = [7];
+proto.database_response.response.repeatedFields_ = [8];
 
 
 
@@ -2032,7 +2032,8 @@ proto.database_response.response.toObject = function(includeInstance, msg) {
     value: jspb.Message.getFieldWithDefault(msg, 4, ""),
     has: jspb.Message.getFieldWithDefault(msg, 5, false),
     size: jspb.Message.getFieldWithDefault(msg, 6, 0),
-    keysList: jspb.Message.getRepeatedField(msg, 7)
+    error: jspb.Message.getFieldWithDefault(msg, 7, ""),
+    keysList: jspb.Message.getRepeatedField(msg, 8)
   };
 
   if (includeInstance) {
@@ -2082,6 +2083,10 @@ proto.database_response.response.deserializeBinaryFromReader = function(msg, rea
       msg.setSize(value);
       break;
     case 7:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setError(value);
+      break;
+    case 8:
       var value = /** @type {string} */ (reader.readString());
       msg.addKeys(value);
       break;
@@ -2135,10 +2140,17 @@ proto.database_response.response.serializeBinaryToWriter = function(message, wri
       f
     );
   }
+  f = message.getError();
+  if (f.length > 0) {
+    writer.writeString(
+      7,
+      f
+    );
+  }
   f = message.getKeysList();
   if (f.length > 0) {
     writer.writeRepeatedString(
-      7,
+      8,
       f
     );
   }
@@ -2193,17 +2205,32 @@ proto.database_response.response.prototype.setSize = function(value) {
 
 
 /**
- * repeated string keys = 7;
+ * optional string error = 7;
+ * @return {string}
+ */
+proto.database_response.response.prototype.getError = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
+};
+
+
+/** @param {string} value */
+proto.database_response.response.prototype.setError = function(value) {
+  jspb.Message.setProto3StringField(this, 7, value);
+};
+
+
+/**
+ * repeated string keys = 8;
  * @return {!Array.<string>}
  */
 proto.database_response.response.prototype.getKeysList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getRepeatedField(this, 7));
+  return /** @type {!Array.<string>} */ (jspb.Message.getRepeatedField(this, 8));
 };
 
 
 /** @param {!Array.<string>} value */
 proto.database_response.response.prototype.setKeysList = function(value) {
-  jspb.Message.setField(this, 7, value || []);
+  jspb.Message.setField(this, 8, value || []);
 };
 
 
@@ -2212,7 +2239,7 @@ proto.database_response.response.prototype.setKeysList = function(value) {
  * @param {number=} opt_index
  */
 proto.database_response.response.prototype.addKeys = function(value, opt_index) {
-  jspb.Message.addToRepeatedField(this, 7, value, opt_index);
+  jspb.Message.addToRepeatedField(this, 8, value, opt_index);
 };
 
 
