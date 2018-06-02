@@ -1,5 +1,8 @@
 os: osx
 
+git:
+  submodules: false
+  
 language: node_js
 
 node_js:
