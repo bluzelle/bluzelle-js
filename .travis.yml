@@ -6,5 +6,5 @@ node_js:
   - "node" # Use latest NodeJS
 
 before_install:
-  - echo ${NPM_RC} > .npmrc
+  - echo $NPM_RC > .npmrc
   - npm install swarmemulator --registry $BLUZELLE_NPM_PRIVATE
