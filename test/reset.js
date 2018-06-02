@@ -9,7 +9,7 @@ const resetInNode = () => {
     } else {
 		// This eval is so that webpack doesn't bundle the emulator,
     	// if we are compiling tests for the browser.
-    	return eval("require('../test-emulator/emulator/Emulator')").reset(communication.getUuid());
+    	return eval("require('swarmemulator')").reset(communication.getUuid());
 	}
 
 };
