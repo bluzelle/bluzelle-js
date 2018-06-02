@@ -12,6 +12,7 @@ delete require.cache[path.resolve(__dirname + '/../api.js')];
 const api2 = require('../api');
 
 
+
 // Run if not testing in browser
 (typeof window === 'undefined' ? describe.only : describe.skip)('multi-client bluzelle api', () => {
 
@@ -278,4 +279,52 @@ const api2 = require('../api');
         });
 
     });
+
+    describe.only('basic multi threading test', () => {
+
+        delete require.cache[path.resolve(__dirname + '/../communication.js')];
+        delete require.cache[path.resolve(__dirname + '/../api.js')];
+
+        const api3 = require('../api');
+
+        delete require.cache[path.resolve(__dirname + '/../communication.js')];
+        delete require.cache[path.resolve(__dirname + '/../api.js')];
+
+        const api4 = require('../api');
+
+        context('four clients with unique UUID\'s', () => {
+            let arr = [1,2,3,4];
+
+            beforeEach(() => {
+                api1.connect(`ws://${process.env.address}:${process.env.port}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
+                api2.connect(`ws://${process.env.address}:${process.env.port}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+                api3.connect(`ws://${process.env.address}:${process.env.port}`, 'cffb4aaa-5c4f-41e0-b098-c899635701e7');
+                api4.connect(`ws://${process.env.address}:${process.env.port}`, 'af56a449-ae8d-473d-aade-4fdf9dac5bfc');
+            });
+
+            context('with reasonable speed', () => {
+
+                it('clients should be able to write and read', async () => {
+
+                    await Promise.all(arr.map((v) => eval('api' + v).create('myKey', 123)));
+
+                    await Promise.all(arr.map((v) => eval('api' + v).read('myKey')))
+                        .then(v => v.map((v) => assert(v === 123)));
+                });
+
+                it('clients should be able to write, update, and read', async () => {
+
+                    await Promise.all(arr.map((v) => eval('api' + v).create('myKey', 123)));
+
+                    await Promise.all(arr.map((v) => eval('api' + v).update('myKey', 1234)));
+
+                    await Promise.all(arr.map((v) => eval('api' + v).read('myKey')))
+                        .then(v => v.map((v) => assert(v === 1234)));
+                });
+
+            });
+
+
+        });
+    } )
 });
