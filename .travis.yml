@@ -3,19 +3,11 @@ os: osx
 git:
   submodules: false
 
-env:
-  - daemonIntegration: false
-
 language: node_js
 
 node_js:
   - "node" # Use latest NodeJS
 
 before_install:
-  - if[$daemonIntegration]; 
-    then
-      echo fail
-    else
-      echo $NPM_RC > .npmrc;
-      npm install swarmemulator --registry $BLUZELLE_NPM_PRIVATE;
-    fi
+  - $NPM_RC > .npmrc
+  - npm install swarmemulator --registry $BLUZELLE_NPM_PRIVATE
