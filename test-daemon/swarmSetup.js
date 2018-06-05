@@ -8,6 +8,9 @@ let logFileName;
 
 module.exports = {
     startSwarm: async function () {
+        // Daemon state is persisted in .state directory, have to wipe it to ensure fresh db
+        exec('cd ./test-daemon/daemon-build/output/; rm -rf .state');
+
         exec('cd ./test-daemon/scripts; ./run-daemon.sh bluzelle.json');
 
         // Waiting briefly before starting second Daemon ensures the first starts as leader
@@ -25,9 +28,8 @@ module.exports = {
 
             let contents = fs.readFileSync('./test-daemon/daemon-build/output/' + logFileName, 'utf8');
 
-            // raft.cpp:601 stdouts 'I AM LEADER'
-            return includes(contents, 'raft.cpp:601');
-        }, 6000);
+            return includes(contents, 'RAFT State: Leader');
+        }, 10000);
     },
     killSwarm: async () => {
         exec('pkill -2 swarm');
