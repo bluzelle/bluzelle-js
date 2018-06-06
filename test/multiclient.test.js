@@ -324,7 +324,7 @@ const api2 = require('../api');
         });
     });
 
-    describe.only('max value', () => {
+    describe('max value', () => {
 
 // delete when running full suite
         beforeEach(reset);

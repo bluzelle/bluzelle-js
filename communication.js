@@ -5,24 +5,12 @@ const {encode} = require('base64-arraybuffer');
 
 const assert = require('assert');
 
+
 const connections = new Set();
 const resolvers = new Map();
 const rejecters = new Map();
 const messages = new Map();
 
-
-// Non-polling actions
-
-// - has
-// - keys
-// - read
-
-
-// Polling actions
-
-// - create
-// - remove
-// - update
 
 
 let uuid;
@@ -35,8 +23,8 @@ const connect = (addr, id) => {
 
 
 const onMessage = (bin, socket) => {
-    
-    const response = database_pb.database_response.deserializeBinary(new Uint8Array(bin)).toObject();
+
+    response = database_pb.database_response.deserializeBinary(new Uint8Array(bin)).toObject();
 
     const id = response.header.transactionId;
 
@@ -47,7 +35,6 @@ const onMessage = (bin, socket) => {
     resolvers.delete(id);
     rejecters.delete(id);
     messages.delete(id);
-
 
     if(id === undefined) {
 
@@ -70,30 +57,15 @@ const onMessage = (bin, socket) => {
 
     } else {
 
-        resolver(response.resp);
+        if(!resolver) {
+            debugger;
+        }
+
+        resolver(response.resp || {});
 
     }
 
 };
-
-
-
-// const disconnect = () => 
-//     Promise.all(Array.from(connections).map(con => 
-//         new Promise(resolve => {
-
-//         con.onclose = () => {
-
-//             connections.delete(con);
-//             resolve();
-
-//         };
-
-//         con.close();
-
-//     })));
-
-
 
 
 const getTransactionId = (() => {
@@ -123,7 +95,7 @@ const send = (database_msg, resolver, rejecter) => {
     s.onopen = () => {
 
         s.send(JSON.stringify({
-            bzn_api: 'database',
+            'bzn-api': 'database',
             msg: encode(message.serializeBinary())
         }));
 

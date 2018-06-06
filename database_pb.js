@@ -960,7 +960,7 @@ proto.database_create.prototype.toObject = function(opt_includeInstance) {
 proto.database_create.toObject = function(includeInstance, msg) {
   var f, obj = {
     key: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    value: jspb.Message.getFieldWithDefault(msg, 3, "")
+    value: msg.getValue_asB64()
   };
 
   if (includeInstance) {
@@ -1002,7 +1002,7 @@ proto.database_create.deserializeBinaryFromReader = function(msg, reader) {
       msg.setKey(value);
       break;
     case 3:
-      var value = /** @type {string} */ (reader.readString());
+      var value = /** @type {!Uint8Array} */ (reader.readBytes());
       msg.setValue(value);
       break;
     default:
@@ -1041,9 +1041,9 @@ proto.database_create.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getValue();
+  f = message.getValue_asU8();
   if (f.length > 0) {
-    writer.writeString(
+    writer.writeBytes(
       3,
       f
     );
@@ -1067,17 +1067,41 @@ proto.database_create.prototype.setKey = function(value) {
 
 
 /**
- * optional string value = 3;
- * @return {string}
+ * optional bytes value = 3;
+ * @return {!(string|Uint8Array)}
  */
 proto.database_create.prototype.getValue = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+  return /** @type {!(string|Uint8Array)} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value */
+/**
+ * optional bytes value = 3;
+ * This is a type-conversion wrapper around `getValue()`
+ * @return {string}
+ */
+proto.database_create.prototype.getValue_asB64 = function() {
+  return /** @type {string} */ (jspb.Message.bytesAsB64(
+      this.getValue()));
+};
+
+
+/**
+ * optional bytes value = 3;
+ * Note that Uint8Array is not supported on all browsers.
+ * @see http://caniuse.com/Uint8Array
+ * This is a type-conversion wrapper around `getValue()`
+ * @return {!Uint8Array}
+ */
+proto.database_create.prototype.getValue_asU8 = function() {
+  return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(
+      this.getValue()));
+};
+
+
+/** @param {!(string|Uint8Array)} value */
 proto.database_create.prototype.setValue = function(value) {
-  jspb.Message.setProto3StringField(this, 3, value);
+  jspb.Message.setProto3BytesField(this, 3, value);
 };
 
 
@@ -1271,7 +1295,7 @@ proto.database_update.prototype.toObject = function(opt_includeInstance) {
 proto.database_update.toObject = function(includeInstance, msg) {
   var f, obj = {
     key: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    value: jspb.Message.getFieldWithDefault(msg, 3, "")
+    value: msg.getValue_asB64()
   };
 
   if (includeInstance) {
@@ -1313,7 +1337,7 @@ proto.database_update.deserializeBinaryFromReader = function(msg, reader) {
       msg.setKey(value);
       break;
     case 3:
-      var value = /** @type {string} */ (reader.readString());
+      var value = /** @type {!Uint8Array} */ (reader.readBytes());
       msg.setValue(value);
       break;
     default:
@@ -1352,9 +1376,9 @@ proto.database_update.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getValue();
+  f = message.getValue_asU8();
   if (f.length > 0) {
-    writer.writeString(
+    writer.writeBytes(
       3,
       f
     );
@@ -1378,17 +1402,41 @@ proto.database_update.prototype.setKey = function(value) {
 
 
 /**
- * optional string value = 3;
- * @return {string}
+ * optional bytes value = 3;
+ * @return {!(string|Uint8Array)}
  */
 proto.database_update.prototype.getValue = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+  return /** @type {!(string|Uint8Array)} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
-/** @param {string} value */
+/**
+ * optional bytes value = 3;
+ * This is a type-conversion wrapper around `getValue()`
+ * @return {string}
+ */
+proto.database_update.prototype.getValue_asB64 = function() {
+  return /** @type {string} */ (jspb.Message.bytesAsB64(
+      this.getValue()));
+};
+
+
+/**
+ * optional bytes value = 3;
+ * Note that Uint8Array is not supported on all browsers.
+ * @see http://caniuse.com/Uint8Array
+ * This is a type-conversion wrapper around `getValue()`
+ * @return {!Uint8Array}
+ */
+proto.database_update.prototype.getValue_asU8 = function() {
+  return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(
+      this.getValue()));
+};
+
+
+/** @param {!(string|Uint8Array)} value */
 proto.database_update.prototype.setValue = function(value) {
-  jspb.Message.setProto3StringField(this, 3, value);
+  jspb.Message.setProto3BytesField(this, 3, value);
 };
 
 
@@ -2029,7 +2077,7 @@ proto.database_response.response.prototype.toObject = function(opt_includeInstan
  */
 proto.database_response.response.toObject = function(includeInstance, msg) {
   var f, obj = {
-    value: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    value: msg.getValue_asB64(),
     has: jspb.Message.getFieldWithDefault(msg, 5, false),
     size: jspb.Message.getFieldWithDefault(msg, 6, 0),
     error: jspb.Message.getFieldWithDefault(msg, 7, ""),
@@ -2071,7 +2119,7 @@ proto.database_response.response.deserializeBinaryFromReader = function(msg, rea
     var field = reader.getFieldNumber();
     switch (field) {
     case 4:
-      var value = /** @type {string} */ (reader.readString());
+      var value = /** @type {!Uint8Array} */ (reader.readBytes());
       msg.setValue(value);
       break;
     case 5:
@@ -2119,9 +2167,9 @@ proto.database_response.response.prototype.serializeBinary = function() {
  */
 proto.database_response.response.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getValue();
+  f = message.getValue_asU8();
   if (f.length > 0) {
-    writer.writeString(
+    writer.writeBytes(
       4,
       f
     );
@@ -2158,17 +2206,41 @@ proto.database_response.response.serializeBinaryToWriter = function(message, wri
 
 
 /**
- * optional string value = 4;
- * @return {string}
+ * optional bytes value = 4;
+ * @return {!(string|Uint8Array)}
  */
 proto.database_response.response.prototype.getValue = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+  return /** @type {!(string|Uint8Array)} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
 
-/** @param {string} value */
+/**
+ * optional bytes value = 4;
+ * This is a type-conversion wrapper around `getValue()`
+ * @return {string}
+ */
+proto.database_response.response.prototype.getValue_asB64 = function() {
+  return /** @type {string} */ (jspb.Message.bytesAsB64(
+      this.getValue()));
+};
+
+
+/**
+ * optional bytes value = 4;
+ * Note that Uint8Array is not supported on all browsers.
+ * @see http://caniuse.com/Uint8Array
+ * This is a type-conversion wrapper around `getValue()`
+ * @return {!Uint8Array}
+ */
+proto.database_response.response.prototype.getValue_asU8 = function() {
+  return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(
+      this.getValue()));
+};
+
+
+/** @param {!(string|Uint8Array)} value */
 proto.database_response.response.prototype.setValue = function(value) {
-  jspb.Message.setProto3StringField(this, 4, value);
+  jspb.Message.setProto3BytesField(this, 4, value);
 };
 
 
