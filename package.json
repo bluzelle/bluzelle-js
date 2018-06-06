@@ -26,6 +26,7 @@
     "google-protobuf": "^3.5.0",
     "isomorphic-ws": "^4.0.1",
     "lodash": "^4.17.10",
+    "text-encoding": "^0.6.4",
     "websocket": "^1.0.25",
     "ws": "^5.2.0"
   }

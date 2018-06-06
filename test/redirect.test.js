@@ -23,63 +23,66 @@ const {decode} = require('base64-arraybuffer');
 
         afterEach(killSwarm);
 
-    } else {
+    }
 
-        before(async () => {
+    before(async () => {
 
-            // Here we're going to mock the daemon with a simple redirect message.
+        // Here we're going to mock the daemon with a simple redirect message.
 
-            httpServer = http.createServer();
-            await httpServer.listen(followerPort);
+        httpServer = http.createServer();
+        await httpServer.listen(followerPort);
 
-            const ws = new WebSocketServer({
-                httpServer: httpServer,
-                autoAcceptConnections: true
-            });
-
-
-            ws.on('connect', connection =>
-                connection.on('message', ({utf8Data}) => {
-
-                    const command = JSON.parse(utf8Data);
-
-                    if(command.bzn_api !== 'database') {
-                        assert(false);
-                    }
-
-                    const base64 = command.msg;
-                    const typedArr = new Uint8Array(decode(base64));
-
-                    const db_msg = bluzelle_pb.bzn_msg.deserializeBinary(typedArr).getDb();
-
-                    const header = db_msg.getHeader();
-
-
-                    const db_response = new database_pb.database_response();
-
-                    db_response.setHeader(header);
-
-
-                    const redirect = new database_pb.database_redirect_response();
-
-                    redirect.setLeaderId("137a8403-52ec-43b7-8083-91391d4c5e67");
-                    redirect.setLeaderName('Sanchez');
-                    redirect.setLeaderHost('127.0.0.1');
-                    redirect.setLeaderPort(8100);
-
-                    db_response.setRedirect(redirect);
-
-                    connection.sendBytes(Buffer.from(db_response.serializeBinary()));
-
-                }));
+        const ws = new WebSocketServer({
+            httpServer: httpServer,
+            autoAcceptConnections: true
         });
 
-        after(() => httpServer.close());
-    }
+
+        ws.on('connect', connection =>
+            connection.on('message', ({utf8Data}) => {
+
+                debugger;
+
+                const command = JSON.parse(utf8Data);
+
+                if(command['bzn-api'] !== 'database') {
+                    assert(false);
+                }
+
+                const base64 = command.msg;
+                const typedArr = new Uint8Array(decode(base64));
+
+                const db_msg = bluzelle_pb.bzn_msg.deserializeBinary(typedArr).getDb();
+
+                const header = db_msg.getHeader();
+
+
+                const db_response = new database_pb.database_response();
+
+                db_response.setHeader(header);
+
+
+                const redirect = new database_pb.database_redirect_response();
+
+                redirect.setLeaderId("137a8403-52ec-43b7-8083-91391d4c5e67");
+                redirect.setLeaderName('Sanchez');
+                redirect.setLeaderHost(process.env.address);
+                redirect.setLeaderPort(process.env.port);
+
+                db_response.setRedirect(redirect);
+
+                connection.sendBytes(Buffer.from(db_response.serializeBinary()));
+
+            }));
+    });
+
+    after(() => httpServer.close());
+
+
 
     it('should follow a redirect and send the command to a different socket', async () => {
 
-        api.connect(`ws://127.0.0.1:${followerPort}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+        api.connect(`ws://${process.env.address}:${followerPort}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
 
         await api.create('hey', 123);
         assert(await api.read('hey') === 123);

@@ -2,8 +2,7 @@ const WebSocket = require('isomorphic-ws');
 const bluzelle_pb = require('./bluzelle_pb');
 const database_pb = require('./database_pb');
 const {encode} = require('base64-arraybuffer');
-
-const assert = require('assert');
+const {isEqual} = require('lodash');
 
 
 const connections = new Set();
@@ -24,9 +23,10 @@ const connect = (addr, id) => {
 
 const onMessage = (bin, socket) => {
 
-    response = database_pb.database_response.deserializeBinary(new Uint8Array(bin)).toObject();
+    const response = database_pb.database_response.deserializeBinary(new Uint8Array(bin));
+    const response_json = response.toObject();
 
-    const id = response.header.transactionId;
+    const id = response_json.header.transactionId;
 
     const message = messages.get(id);
     const resolver = resolvers.get(id);
@@ -38,17 +38,17 @@ const onMessage = (bin, socket) => {
 
     if(id === undefined) {
 
-        throw new Error('Received non-response message.');
+        throw new Error('Received non-response_json message.');
 
     }
 
-    if(response.redirect) {
+    if(response_json.redirect) {
 
         const isSecure = address.startsWith('wss://');
 
         const prefix = isSecure ? 'wss://' : 'ws://';
 
-        const addressAndPort = prefix + response.redirect.leaderHost + ':' + response.redirect.leaderPort;
+        const addressAndPort = prefix + response_json.redirect.leaderHost + ':' + response_json.redirect.leaderPort;
 
         connect(addressAndPort, uuid);
 
@@ -57,11 +57,17 @@ const onMessage = (bin, socket) => {
 
     } else {
 
-        if(!resolver) {
-            debugger;
+        // We want the raw binary output, as toObject() above will automatically
+        // convert the Uint8 array to base64.
+
+        if(response_json.resp && response_json.resp.value) {
+
+            response_json.resp.value = response.getResp().getValue();
+
         }
 
-        resolver(response.resp || {});
+
+        resolver(response_json.resp || {});
 
     }
 
@@ -280,7 +286,7 @@ const update = (key, value) => new Promise((resolve, reject) => {
 
             const pollingFunc = () => 
                 new Promise((res, rej) => 
-                    read(key).then(v => res(v === value), rej));
+                    read(key).then(v => res(isEqual(v, value)), rej));
 
             poll(pollingFunc).then(resolve, reject);
 
