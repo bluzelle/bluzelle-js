@@ -8,7 +8,7 @@ let logFileName;
 
 module.exports = {
     startSwarm: async function () {
-        // Daemon state is persisted in .state directory, have to wipe it to ensure fresh db
+        // Daemon state is persisted in .state directory, wipe it to ensure clean slate
         exec('cd ./test-daemon/daemon-build/output/; rm -rf .state');
 
         exec('cd ./test-daemon/scripts; ./run-daemon.sh bluzelle.json');

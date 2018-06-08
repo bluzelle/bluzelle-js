@@ -62,7 +62,6 @@ describe('bluzelle api', () => {
 
     });
 
-
     it('should be able to create and read byte data', async () => {
 
         const val = new Uint8Array([3, 1, 4, 1, 5, 9]);
@@ -146,6 +145,45 @@ describe('bluzelle api', () => {
     it('should return size 0 when db is empty', async () => {
 
         assert((await api.size()) === 0);
+      
+    });
+  
+    describe.only('max value', () => {
+
+        context('writing 225000 bytes', () => {
+
+            it('should throw VALUE_SIZE_TOO_LARGE', done => {
+
+                let str = '0'.repeat(225000);
+
+                api.create('key', str)
+                    .catch(err => {
+                        if (err.toString().includes('Error: VALUE_SIZE_TOO_LARGE')) {
+                            done();
+                        }
+                    });
+
+            });
+
+        });
+
+        context('writing 224000 bytes', () => {
+
+            it('should not throw an error', done => {
+
+                let str = '0'.repeat(224000);
+
+                api.create('key', str)
+                    .then(() => done())
+                    .catch(err => {
+                        if (err) {
+                            console.log(err);
+                        }
+                    });
+
+            })
+
+        });
 
     });
 

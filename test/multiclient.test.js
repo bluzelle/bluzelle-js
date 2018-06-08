@@ -322,61 +322,7 @@ const api2 = require('../api');
 
 
         });
+      
     });
 
-    describe('max value', () => {
-
-// delete when running full suite
-        beforeEach(reset);
-
-        process.env.daemonIntegration && afterEach(killSwarm);
-// delete when finished
-
-        beforeEach(() => {
-            api1.connect(`ws://${process.env.address}:${process.env.port}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
-        });
-
-       context('writing 225000 bytes', () => {
-
-          it('should throw VALUE_SIZE_TOO_LARGE', (done) => {
-              let x = '';
-
-              for (let i = 0; i < 225000; i++) {
-                  x += '0';
-              }
-
-              api1.create('key', x)
-                  .catch(err => {
-                      if (err.toString().includes('Error: VALUE_SIZE_TOO_LARGE')) {
-                          done();
-                      }
-                  });
-
-          });
-
-       });
-
-       context('writing 224000 bytes', () => {
-
-           it('should not throw an error', function(done) {
-
-               let x = '';
-
-               for (let i = 0; i < 224000; i++) {
-                   x += '0';
-               }
-
-               api1.create('key', x)
-                   .then(() => done())
-                   .catch(err => {
-                       if (err) {
-                           console.log(err)
-                       }
-                   });
-
-           })
-
-       });
-
-    });
 });
