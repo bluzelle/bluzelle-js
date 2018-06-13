@@ -12,6 +12,7 @@ var goog = jspb;
 var global = Function('return this')();
 
 var database_pb = require('./database_pb.js');
+var state_pb = require('./state_pb.js');
 goog.exportSymbol('proto.bzn_msg', null, global);
 
 /**
@@ -39,7 +40,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<!Array<number>>}
  * @const
  */
-proto.bzn_msg.oneofGroups_ = [[10,11]];
+proto.bzn_msg.oneofGroups_ = [[10,11,12]];
 
 /**
  * @enum {number}
@@ -47,7 +48,8 @@ proto.bzn_msg.oneofGroups_ = [[10,11]];
 proto.bzn_msg.MsgCase = {
   MSG_NOT_SET: 0,
   DB: 10,
-  JSON: 11
+  STATE: 11,
+  JSON: 12
 };
 
 /**
@@ -87,7 +89,8 @@ proto.bzn_msg.prototype.toObject = function(opt_includeInstance) {
 proto.bzn_msg.toObject = function(includeInstance, msg) {
   var f, obj = {
     db: (f = msg.getDb()) && database_pb.database_msg.toObject(includeInstance, f),
-    json: jspb.Message.getFieldWithDefault(msg, 11, "")
+    state: (f = msg.getState()) && state_pb.state_msg.toObject(includeInstance, f),
+    json: jspb.Message.getFieldWithDefault(msg, 12, "")
   };
 
   if (includeInstance) {
@@ -130,6 +133,11 @@ proto.bzn_msg.deserializeBinaryFromReader = function(msg, reader) {
       msg.setDb(value);
       break;
     case 11:
+      var value = new state_pb.state_msg;
+      reader.readMessage(value,state_pb.state_msg.deserializeBinaryFromReader);
+      msg.setState(value);
+      break;
+    case 12:
       var value = /** @type {string} */ (reader.readString());
       msg.setJson(value);
       break;
@@ -170,10 +178,18 @@ proto.bzn_msg.serializeBinaryToWriter = function(message, writer) {
       database_pb.database_msg.serializeBinaryToWriter
     );
   }
-  f = /** @type {string} */ (jspb.Message.getField(message, 11));
+  f = message.getState();
+  if (f != null) {
+    writer.writeMessage(
+      11,
+      f,
+      state_pb.state_msg.serializeBinaryToWriter
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 12));
   if (f != null) {
     writer.writeString(
-      11,
+      12,
       f
     );
   }
@@ -211,22 +227,52 @@ proto.bzn_msg.prototype.hasDb = function() {
 
 
 /**
- * optional string json = 11;
+ * optional state_msg state = 11;
+ * @return {?proto.state_msg}
+ */
+proto.bzn_msg.prototype.getState = function() {
+  return /** @type{?proto.state_msg} */ (
+    jspb.Message.getWrapperField(this, state_pb.state_msg, 11));
+};
+
+
+/** @param {?proto.state_msg|undefined} value */
+proto.bzn_msg.prototype.setState = function(value) {
+  jspb.Message.setOneofWrapperField(this, 11, proto.bzn_msg.oneofGroups_[0], value);
+};
+
+
+proto.bzn_msg.prototype.clearState = function() {
+  this.setState(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.bzn_msg.prototype.hasState = function() {
+  return jspb.Message.getField(this, 11) != null;
+};
+
+
+/**
+ * optional string json = 12;
  * @return {string}
  */
 proto.bzn_msg.prototype.getJson = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 12, ""));
 };
 
 
 /** @param {string} value */
 proto.bzn_msg.prototype.setJson = function(value) {
-  jspb.Message.setOneofField(this, 11, proto.bzn_msg.oneofGroups_[0], value);
+  jspb.Message.setOneofField(this, 12, proto.bzn_msg.oneofGroups_[0], value);
 };
 
 
 proto.bzn_msg.prototype.clearJson = function() {
-  jspb.Message.setOneofField(this, 11, proto.bzn_msg.oneofGroups_[0], undefined);
+  jspb.Message.setOneofField(this, 12, proto.bzn_msg.oneofGroups_[0], undefined);
 };
 
 
@@ -235,7 +281,7 @@ proto.bzn_msg.prototype.clearJson = function() {
  * @return {!boolean}
  */
 proto.bzn_msg.prototype.hasJson = function() {
-  return jspb.Message.getField(this, 11) != null;
+  return jspb.Message.getField(this, 12) != null;
 };
 
 
