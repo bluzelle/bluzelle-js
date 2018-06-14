@@ -59,4 +59,40 @@ describe(`load testing with ${NUM_OF_RECORDS} records`, () => {
         assert(await communication.size() >= 0);
     });
 
+
+    describe.skip('max value', () => {
+
+        context('writing 299000 bytes', () => {
+
+            it('should throw VALUE_SIZE_TOO_LARGE', done => {
+
+                communication.create('key', new Uint8Array(299000))
+                    .catch(err => {
+                        if (err.toString().includes('Error: VALUE_SIZE_TOO_LARGE')) {
+                            done();
+                        }
+                    });
+
+            });
+
+        });
+
+        context('writing 301000 bytes', () => {
+
+            it('should not throw an error', done => {
+
+                communication.create('key', new Uint8Array(301000))
+                    .then(() => done())
+                    .catch(err => {
+                        if (err) {
+                            console.log(err);
+                        }
+                    });
+
+            })
+
+        });
+
+    });
+
 });
