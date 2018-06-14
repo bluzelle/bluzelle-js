@@ -1,6 +1,7 @@
 const WebSocket = require('isomorphic-ws');
 const bluzelle_pb = require('./bluzelle_pb');
 const database_pb = require('./database_pb');
+const state_pb = require('./state_pb');
 const {encode} = require('base64-arraybuffer');
 const {isEqual} = require('lodash');
 
@@ -385,6 +386,51 @@ const remove = key => new Promise((resolve, reject) => {
 });
 
 
+const state = () => new Promise(resolve => {
+
+
+    const s = new WebSocket(address);
+
+    s.onopen = () => {
+
+        s.send(JSON.stringify({
+            'bzn-api': 'state'        
+        }));
+
+    };
+
+    s.onerror = e =>  {
+
+        s.close();
+        rejecter(e);
+
+    };
+
+    s.onmessage = e => {
+
+        s.close();
+
+
+        const bin = e.data;
+
+        if(typeof bin === 'string') {
+
+            throw new Error('daemon returned string');
+
+        }
+
+        debugger;
+
+        const state_response = state_pb.state_response.deserializeBinary(new Uint8Array(bin));
+        const state_response_json = state_response.toObject();
+
+        resolve(state_response_json);
+
+    };
+
+});
+
+
 module.exports = {
     getUuid: () => uuid,
     connect,
@@ -394,7 +440,8 @@ module.exports = {
     remove,
     has,
     keys,
-    size
+    size,
+    state
 };
 
 

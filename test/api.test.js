@@ -147,16 +147,25 @@ describe('bluzelle api', () => {
         assert((await api.size()) === 0);
       
     });
+
+
+    it('should return swarm state', async () => {
+
+        const state = await api.state();
+
+        assert(Object.keys(state).includes('raftstate'));
+        assert(Object.keys(state).includes('peersList'));
+
+    });
+
   
     describe('max value', () => {
 
-        context('writing 225000 bytes', () => {
+        context('writing 299000 bytes', () => {
 
             it('should throw VALUE_SIZE_TOO_LARGE', done => {
 
-                let str = '0'.repeat(225000);
-
-                api.create('key', str)
+                api.create('key', new Uint8Array(299000))
                     .catch(err => {
                         if (err.toString().includes('Error: VALUE_SIZE_TOO_LARGE')) {
                             done();
@@ -167,13 +176,11 @@ describe('bluzelle api', () => {
 
         });
 
-        context('writing 224000 bytes', () => {
+        context('writing 301000 bytes', () => {
 
             it('should not throw an error', done => {
 
-                let str = '0'.repeat(224000);
-
-                api.create('key', str)
+                api.create('key', new Uint8Array(301000))
                     .then(() => done())
                     .catch(err => {
                         if (err) {

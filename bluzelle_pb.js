@@ -89,7 +89,7 @@ proto.bzn_msg.prototype.toObject = function(opt_includeInstance) {
 proto.bzn_msg.toObject = function(includeInstance, msg) {
   var f, obj = {
     db: (f = msg.getDb()) && database_pb.database_msg.toObject(includeInstance, f),
-    state: (f = msg.getState()) && state_pb.state_msg.toObject(includeInstance, f),
+    state: (f = msg.getState()) && state_pb.state_request.toObject(includeInstance, f),
     json: jspb.Message.getFieldWithDefault(msg, 12, "")
   };
 
@@ -133,8 +133,8 @@ proto.bzn_msg.deserializeBinaryFromReader = function(msg, reader) {
       msg.setDb(value);
       break;
     case 11:
-      var value = new state_pb.state_msg;
-      reader.readMessage(value,state_pb.state_msg.deserializeBinaryFromReader);
+      var value = new state_pb.state_request;
+      reader.readMessage(value,state_pb.state_request.deserializeBinaryFromReader);
       msg.setState(value);
       break;
     case 12:
@@ -183,7 +183,7 @@ proto.bzn_msg.serializeBinaryToWriter = function(message, writer) {
     writer.writeMessage(
       11,
       f,
-      state_pb.state_msg.serializeBinaryToWriter
+      state_pb.state_request.serializeBinaryToWriter
     );
   }
   f = /** @type {string} */ (jspb.Message.getField(message, 12));
@@ -227,16 +227,16 @@ proto.bzn_msg.prototype.hasDb = function() {
 
 
 /**
- * optional state_msg state = 11;
- * @return {?proto.state_msg}
+ * optional state_request state = 11;
+ * @return {?proto.state_request}
  */
 proto.bzn_msg.prototype.getState = function() {
-  return /** @type{?proto.state_msg} */ (
-    jspb.Message.getWrapperField(this, state_pb.state_msg, 11));
+  return /** @type{?proto.state_request} */ (
+    jspb.Message.getWrapperField(this, state_pb.state_request, 11));
 };
 
 
-/** @param {?proto.state_msg|undefined} value */
+/** @param {?proto.state_request|undefined} value */
 proto.bzn_msg.prototype.setState = function(value) {
   jspb.Message.setOneofWrapperField(this, 11, proto.bzn_msg.oneofGroups_[0], value);
 };
