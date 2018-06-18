@@ -149,9 +149,11 @@ describe('bluzelle api', () => {
     });
 
 
-    it('should return swarm state', async () => {
+    it.only('should return swarm state', async () => {
 
         const state = await api.state();
+
+        debugger;
 
         assert(Object.keys(state).includes('raftstate'));
         assert(Object.keys(state).includes('peersList'));

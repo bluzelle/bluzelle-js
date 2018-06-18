@@ -419,8 +419,6 @@ const state = () => new Promise(resolve => {
 
         }
 
-        debugger;
-
         const state_response = state_pb.state_response.deserializeBinary(new Uint8Array(bin));
         const state_response_json = state_response.toObject();
 
