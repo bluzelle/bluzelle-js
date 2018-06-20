@@ -51,7 +51,7 @@ const uInt8ToVal = arr => {
 
 	if(prefix === OBJ_PREFIX) {
 
-		return JSON.parse(decode(rest));
+		return Object.keys(rest).length === 0 ? rest : JSON.parse(decode(rest));
 
 	}
 
