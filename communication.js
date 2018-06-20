@@ -102,6 +102,8 @@ const send = (database_msg, resolver, rejecter) => {
 
 
     const s = new WebSocket(address);
+    s.binaryType = "arraybuffer";
+
 
     s.onopen = () => {
 
@@ -390,6 +392,8 @@ const state = () => new Promise(resolve => {
 
 
     const s = new WebSocket(address);
+    s.binaryType = "arraybuffer";
+
 
     s.onopen = () => {
 
