@@ -388,7 +388,7 @@ const remove = key => new Promise((resolve, reject) => {
 });
 
 
-const state = () => new Promise(resolve => {
+const state = () => new Promise((resolve, reject) => {
 
 
     const s = new WebSocket(address);
@@ -406,7 +406,7 @@ const state = () => new Promise(resolve => {
     s.onerror = e =>  {
 
         s.close();
-        rejecter(e);
+        reject(e);
 
     };
 
