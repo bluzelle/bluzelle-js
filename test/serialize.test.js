@@ -63,4 +63,23 @@ describe('serialize', () => {
 
 	});
 
+
+	it('uInt8ToVal should return binary if decoding fails', () => {
+
+		const arr = new Uint8Array([3, 2, 1, 0]);
+
+		const arr2 = uInt8ToVal(arr);
+
+		assert(isEqual(arr, arr2));
+
+
+		const arr3 = new Uint8Array([1, 2, 1, 0]);
+
+		const arr4 = uInt8ToVal(arr3);
+
+		assert(isEqual(arr3, arr4));
+
+
+	});
+
 });

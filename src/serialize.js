@@ -51,12 +51,18 @@ const uInt8ToVal = arr => {
 
 	if(prefix === OBJ_PREFIX) {
 
-		return JSON.parse(decode(rest));
+        try {
+
+	       return JSON.parse(decode(rest));
+
+        } catch(e) {} 
 
 	}
 
 
-    throw new Error("Response prefix not recognized as binary data or object data");
+    console.warn('Warning: bluzelle-js cannot decode value. Returning as raw bytes.');
+
+    return arr;
 
 };
 
