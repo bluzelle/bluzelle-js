@@ -28,8 +28,8 @@ describe('bluzelle api', () => {
 
     it('should be able to get a list of keys', async () => {
 
-        await api.create('hello123', 10);
-        await api.create('test', 11);
+        await api.create('hello123', '10');
+        await api.create('test', '11');
 
         let sortedResult = (await api.keys()).sort();
 
@@ -38,11 +38,6 @@ describe('bluzelle api', () => {
 
     });
 
-    it('should be able to create and read number fields', async () => {
-        await api.create('myKey', 123);
-        assert(await api.read('myKey') === 123);
-
-    });
 
     it('should be able to create and read text fields', async () => {
 
@@ -52,23 +47,6 @@ describe('bluzelle api', () => {
 
         await api.create('interestingString', "aGVsbG8gd29ybGQNCg==");
         assert(await api.read('interestingString') === "aGVsbG8gd29ybGQNCg==");
-
-    });
-
-    it('should be able to create and read object fields', async () => {
-
-        await api.create('myObjKey', { a: 5 });
-        assert((await api.read('myObjKey')).a === 5);
-
-    });
-
-    it('should be able to create and read byte data', async () => {
-
-        const val = new Uint8Array([3, 1, 4, 1, 5, 9]);
-
-        await api.create('myBinary', val);
-        
-        assert(isEqual(await api.read('myBinary'), val));
 
     });
 
@@ -121,22 +99,22 @@ describe('bluzelle api', () => {
 
     it('should throw an error when creating the same key twice', done => {
 
-        api.create('mykey', 123).then(() => {
+        api.create('mykey', '123').then(() => {
 
-            api.create('mykey', 321).catch(() => done());
+            api.create('mykey', '321').catch(() => done());
 
         });
     });
 
     it('should throw an error when trying to update a non-existent key', done => {
 
-        api.update('something', 123).catch(() => done());
+        api.update('something', '123').catch(() => done());
 
     });
 
     it('should return size > 0 when db is not empty', async () => {
 
-        await api.create('myKey', 123);
+        await api.create('myKey', '123');
         assert((await api.size()) > 0);
 
     });

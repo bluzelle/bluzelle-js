@@ -36,40 +36,15 @@ const api2 = require('../src/api');
             //     api2.ping());
 
             it('client1 should be able to write to database', async () => {
-                await api1.create('myKey', 123);
-                assert(await api1.read('myKey') === 123);
+                await api1.create('myKey', '123');
+                assert(await api1.read('myKey') === '123');
             });
 
             it('client2 should be able to write to database', async () => {
-                await api2.create('myKey', 345);
-                assert(await api2.read('myKey') === 345);
+                await api2.create('myKey', '345');
+                assert(await api2.read('myKey') === '345');
             });
 
-            context('number fields', async () => {
-
-                beforeEach(async () => {
-                    await api1.create('myKey', 123);
-                    await api2.create('myKey', 345);
-                });
-
-                it('should be able to read with no cross talk', async () => {
-                    assert(await api1.read('myKey') === 123);
-                    assert(await api2.read('myKey') === 345);
-                });
-
-                it('should be able to update with no cross talk', async () => {
-                    await api1.update('myKey', 999);
-
-                    assert(await api2.read('myKey') === 345);
-                });
-
-                it('should be able to delete with no cross talk', async () => {
-                    await api1.remove('myKey');
-
-                    assert(await api2.read('myKey') === 345);
-                });
-
-            });
 
             context('text fields', async () => {
 
@@ -98,32 +73,6 @@ const api2 = require('../src/api');
 
             });
 
-            context('object fields', async () => {
-
-                beforeEach(async () => {
-                    await api1.create('myKey', {a: 5});
-                    await api2.create('myKey', {b: 9});
-                });
-
-                it('should be able to read with no cross talk', async () => {
-                    assert((await api1.read('myKey')).a === 5);
-                    assert((await api2.read('myKey')).b === 9);
-
-                });
-
-                it('should be able to update with no cross talk', async () => {
-                    await api1.update('myKey', {a: 500});
-
-                    assert((await api2.read('myKey')).b === 9);
-                });
-
-                it('should be able to delete with no cross talk', async () => {
-                    await api1.remove('myKey');
-
-                    assert((await api2.read('myKey')).b === 9);
-                });
-
-            });
 
             describe('attempting to access keys of another client', () => {
 
@@ -171,20 +120,20 @@ const api2 = require('../src/api');
             //     api2.ping());
 
             it('client1 should be able to write to database', async () => {
-                await api1.create('myKey', 123);
-                assert(await api1.read('myKey') === 123);
+                await api1.create('myKey', '123');
+                assert(await api1.read('myKey') === '123');
             });
 
             it('client2 should be able to write to database', async () => {
-                await api2.create('myKey', 345);
-                assert(await api2.read('myKey') === 345);
+                await api2.create('myKey', '345');
+                assert(await api2.read('myKey') === '345');
             });
 
             it('should throw an error when creating the same key twice', done => {
 
-                api1.create('mykey', 123).then(() => {
+                api1.create('mykey', '123').then(() => {
 
-                    api2.create('mykey', 321).catch(() => done());
+                    api2.create('mykey', '321').catch(() => done());
 
                 });
 
@@ -196,13 +145,13 @@ const api2 = require('../src/api');
                 context('number fields', () => {
 
                     beforeEach(async () => {
-                        await api1.create('myNumKey', 123);
-                        await api2.update('myNumKey', 345);
+                        await api1.create('myNumKey', '123');
+                        await api2.update('myNumKey', '345');
                     });
 
                     it('value should be updated by last call', async () => {
-                        assert(await api1.read('myNumKey') !== 123);
-                        assert(await api1.read('myNumKey') === 345);
+                        assert(await api1.read('myNumKey') !== '123');
+                        assert(await api1.read('myNumKey') === '345');
                     });
                 });
 
@@ -219,19 +168,6 @@ const api2 = require('../src/api');
                     });
                 });
 
-                context('object fields', () => {
-
-                    beforeEach(async () => {
-                        await api1.create('myObjKey', {a: 5});
-                        await api2.update('myObjKey', {a: 100});
-                    });
-
-                    it('value should be updated by last call', async () => {
-                        assert((await api1.read('myObjKey')).a !== 5);
-                        assert((await api1.read('myObjKey')).a === 100);
-                    });
-                });
-
             });
 
             context('creating, deleting, and then reading', () => {
@@ -239,7 +175,7 @@ const api2 = require('../src/api');
                 context('number field', () => {
 
                     beforeEach(async () => {
-                        await api1.create('myNumKey', 123);
+                        await api1.create('myNumKey', '123');
                         await api2.remove('myNumKey');
                     });
 
@@ -262,18 +198,6 @@ const api2 = require('../src/api');
 
                 });
 
-                context('object field', () => {
-
-                    beforeEach(async () => {
-                        await api1.create('myObjKey', {a: 5});
-                        await api2.remove('myObjKey');
-                    });
-
-                    it('should throw error when attempting to read', done => {
-                        api1.read('myObjKey').catch(() => done());
-                    });
-
-                });
             });
         });
 
@@ -304,20 +228,20 @@ const api2 = require('../src/api');
 
             it('clients should be able to write and read', async () => {
 
-                await Promise.all(arr.map((v) => eval('api' + v).create('myKey', 123)));
+                await Promise.all(arr.map((v) => eval('api' + v).create('myKey', '123')));
 
                 await Promise.all(arr.map((v) => eval('api' + v).read('myKey')))
-                    .then(v => v.map((v) => assert(v === 123)));
+                    .then(v => v.map((v) => assert(v === '123')));
             });
 
             it('clients should be able to write, update, and read', async () => {
 
-                await Promise.all(arr.map((v) => eval('api' + v).create('myKey', 123)));
+                await Promise.all(arr.map((v) => eval('api' + v).create('myKey', '123')));
 
-                await Promise.all(arr.map((v) => eval('api' + v).update('myKey', 1234)));
+                await Promise.all(arr.map((v) => eval('api' + v).update('myKey', '1234')));
 
                 await Promise.all(arr.map((v) => eval('api' + v).read('myKey')))
-                    .then(v => v.map((v) => assert(v === 1234)));
+                    .then(v => v.map((v) => assert(v === '1234')));
             });
 
 

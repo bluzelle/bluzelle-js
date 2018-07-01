@@ -84,8 +84,8 @@ const {decode} = require('base64-arraybuffer');
 
         api.connect(`ws://${process.env.address}:${followerPort}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
 
-        await api.create('hey', 123);
-        assert(await api.read('hey') === 123);
+        await api.create('hey', '123');
+        assert(await api.read('hey') === '123');
 
     });
 
