@@ -6,7 +6,7 @@ if [ "$daemonIntegration" = true ]; then
 
   sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   sudo apt-get update
-  sudo apt-get install --no-install-recommends ca-certificates --allow-unauthenticated bluzelle-swarmdb libstdc++6
+  sudo apt-get install --no-install-recommends ca-certificates --allow-unauthenticated bluzelle-swarmdb
 
   cd test-daemon
   rm daemon-build
