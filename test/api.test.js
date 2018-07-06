@@ -26,6 +26,14 @@ describe('bluzelle api', () => {
 
     });
 
+
+    it.only('should get an empty list of keys', async () => {
+
+        assert((await api.keys()).length === 0);
+
+    });
+
+
     it('should be able to get a list of keys', async () => {
 
         await api.create('hello123', '10');
