@@ -5,6 +5,7 @@ const {isEqual} = require('lodash');
 
 const {despawnSwarm, swarm} = require('../test-daemon/setup');
 
+
 describe('bluzelle api', () => {
 
     beforeEach(reset);
@@ -12,7 +13,7 @@ describe('bluzelle api', () => {
     process.env.daemonIntegration && afterEach(despawnSwarm);
 
     beforeEach(() =>
-        api.connect(`ws://${process.env.address}:${swarm.list[swarm.leader]}`, '71e2cd35-b606-41e6-bb08-f20de30df76c'));
+        api.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c'));
 
 
     const isEqual = (a, b) =>
@@ -20,9 +21,9 @@ describe('bluzelle api', () => {
 
     it('should be able to connect many times', () => {
 
-        api.connect(`ws://${process.env.address}:${swarm.list[swarm.leader]}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
-        api.connect(`ws://${process.env.address}:${swarm.list[swarm.leader]}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
-        api.connect(`ws://${process.env.address}:${swarm.list[swarm.leader]}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+        api.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+        api.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+        api.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
 
     });
 
@@ -33,7 +34,7 @@ describe('bluzelle api', () => {
 
         let sortedResult = (await api.keys()).sort();
 
-        assert(isEqual(sortedResult, (['test','hello123']).sort()));
+        assert(isEqual(sortedResult, (['test', 'hello123']).sort()));
         assert(!isEqual(sortedResult, (['blah', 'bli']).sort()));
 
     });
@@ -57,7 +58,7 @@ describe('bluzelle api', () => {
 
     it('should be able to create and read object fields', async () => {
 
-        await api.create('myObjKey', { a: 5 });
+        await api.create('myObjKey', {a: 5});
         assert((await api.read('myObjKey')).a === 5);
 
     });

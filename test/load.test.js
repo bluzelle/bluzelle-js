@@ -15,7 +15,7 @@ describe(`load testing with ${NUM_OF_RECORDS} records`, () => {
     process.env.daemonIntegration && after(despawnSwarm);
 
     beforeEach(() =>
-        communication.connect(`ws://${process.env.address}:${swarm.list[swarm.leader]}`, '71e2cd35-b606-41e6-bb08-f20de30df76c'));
+        communication.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c'));
 
 
     it(`can create keys`, async () => {

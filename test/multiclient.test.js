@@ -24,9 +24,9 @@ const api2 = require('../src/api');
         context('interacting with the same key', () => {
 
             beforeEach(() => {
-                api1.connect(`ws://${process.env.address}:${swarm.list[swarm.leader]}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
+                api1.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
 
-                api2.connect(`ws://${process.env.address}:${swarm.list[swarm.leader]}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+                api2.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
             });
 
             // it('api1 should be able to ping the connection', () =>
@@ -159,9 +159,9 @@ const api2 = require('../src/api');
         context('interacting with the same key', () => {
 
             beforeEach(() => {
-                api1.connect(`ws://${process.env.address}:${swarm.list[swarm.leader]}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
+                api1.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
 
-                api2.connect(`ws://${process.env.address}:${swarm.list[swarm.leader]}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
+                api2.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
             });
 
             // it('api1 should be able to ping the connection', () =>
@@ -295,10 +295,10 @@ const api2 = require('../src/api');
             let arr = [1, 2, 3, 4];
 
             beforeEach(() => {
-                api1.connect(`ws://${process.env.address}:${swarm.list[swarm.leader]}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
-                api2.connect(`ws://${process.env.address}:${swarm.list[swarm.leader]}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
-                api3.connect(`ws://${process.env.address}:${swarm.list[swarm.leader]}`, 'cffb4aaa-5c4f-41e0-b098-c899635701e7');
-                api4.connect(`ws://${process.env.address}:${swarm.list[swarm.leader]}`, 'af56a449-ae8d-473d-aade-4fdf9dac5bfc');
+                api1.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
+                api2.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+                api3.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, 'cffb4aaa-5c4f-41e0-b098-c899635701e7');
+                api4.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, 'af56a449-ae8d-473d-aade-4fdf9dac5bfc');
             });
 
 
