@@ -13,11 +13,6 @@ matrix:
             - sourceline: 'deb https://bluzelle.jfrog.io/bluzelle/debian-local all stable'
             - ubuntu-toolchain-r-test
             - sourceline: 'deb http://ppa.launchpad.net/maarten-fonville/protobuf/ubuntu trusty main'
-          packages:
-            - g++-7
-            - pkg-config
-            - protobuf-compiler
-            - libprotobuf-dev
     - os: osx
       env: "emulatorIntegration=true"
 
