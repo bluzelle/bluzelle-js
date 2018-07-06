@@ -1,13 +1,11 @@
 const {spawn, exec} = require('child_process');
 const waitUntil = require('async-wait-until');
-const util = require('util');
-const fs = require('fs');
 
 const setupUtils = {
     swarm: {list: {'daemon0': 50000, 'daemon1': 50001, 'daemon2': 50002}},
     spawnSwarm: async () => {
 
-        exec('cd ./daemon-build/output/; rm -rf .state');
+        exec('cd ./test-daemon/daemon-build/output/; rm -rf .state');
 
         Object.keys(setupUtils.swarm.list).forEach((daemon, i) => {
 
@@ -22,7 +20,6 @@ const setupUtils = {
 
         try {
             await waitUntil(() => setupUtils.swarm.leader, 15000);
-            console.log(`setupUtils.swarm.leader: ${setupUtils.swarm.leader}`);
         } catch (err) {
             console.log(`Failed to declare leader`)
         }
