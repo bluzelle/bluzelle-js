@@ -1,18 +1,58 @@
 const reset = require('./reset');
 const api = require('../src/api');
 const assert = require('assert');
-const {killSwarm} = require('../test-daemon/swarmSetup');
 const {isEqual} = require('lodash');
 
 
-describe('bluzelle api', () => {
+const {spawnSwarm, despawnSwarm, swarm} = require('../test-daemon/setup');
 
-    beforeEach(reset);
+// const {spawn, exec} = require('child_process');
+// const waitUntil = require('async-wait-until');
+//
+// const swarm = {list: {'daemon0': 50000, 'daemon1': 50001, 'daemon2': 50002}};
+//
+// const spawnSwarm = async () => {
+//
+//     exec('cd ./test-daemon/daemon-build/output/; rm -rf .state');
+//
+//     Object.keys(swarm.list).forEach((daemon, i) => {
+//
+//         swarm[daemon] = spawn('./run-daemon.sh', [`bluzelle${i}.json`], {cwd: './test-daemon/scripts'});
+//
+//         swarm[daemon].stdout.on('data', data => {
+//             console.log(data.toString());
+//             if (data.toString().includes('RAFT State: Leader')) {
+//                 swarm.leader = daemon;
+//             }
+//         });
+//
+//     });
+//
+//     try {
+//         await waitUntil(() => swarm.leader, 15000);
+//         console.log('swarm.leader: ' + swarm.leader);
+//     } catch (err) {
+//         console.log(`Failed to declare leader`)
+//     }
+// };
+//
+// const despawnSwarm = () => {
+//
+//     exec('pkill -2 swarm');
+//
+//     swarm.daemon0, swarm.daemon1, swarm.daemon2, swarm.leader = undefined;
+// };
 
-    process.env.daemonIntegration && afterEach(killSwarm);
+
+describe.only('bluzelle api', () => {
+
+    // beforeEach(reset);
+    beforeEach(spawnSwarm);
+
+    process.env.daemonIntegration && afterEach(despawnSwarm);
 
     beforeEach(() =>
-        api.connect(`ws://${process.env.address}:${process.env.port}`, '71e2cd35-b606-41e6-bb08-f20de30df76c'));
+        api.connect(`ws://${process.env.address}:${swarm.list[swarm.leader]}`, '71e2cd35-b606-41e6-bb08-f20de30df76c'));
 
 
     const isEqual = (a, b) =>
@@ -67,7 +107,7 @@ describe('bluzelle api', () => {
         const val = new Uint8Array([3, 1, 4, 1, 5, 9]);
 
         await api.create('myBinary', val);
-        
+
         assert(isEqual(await api.read('myBinary'), val));
 
     });
@@ -145,7 +185,7 @@ describe('bluzelle api', () => {
     it('should return size 0 when db is empty', async () => {
 
         assert((await api.size()) === 0);
-      
+
     });
 
 });
