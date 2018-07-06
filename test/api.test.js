@@ -5,7 +5,7 @@ const {isEqual} = require('lodash');
 
 const {despawnSwarm, swarm} = require('../test-daemon/setup');
 
-describe.only('bluzelle api', () => {
+describe('bluzelle api', () => {
 
     beforeEach(reset);
 
@@ -20,9 +20,9 @@ describe.only('bluzelle api', () => {
 
     it('should be able to connect many times', () => {
 
-        api.connect(`ws://${process.env.address}:${process.env.port}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
-        api.connect(`ws://${process.env.address}:${process.env.port}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
-        api.connect(`ws://${process.env.address}:${process.env.port}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+        api.connect(`ws://${process.env.address}:${swarm.list[swarm.leader]}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+        api.connect(`ws://${process.env.address}:${swarm.list[swarm.leader]}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+        api.connect(`ws://${process.env.address}:${swarm.list[swarm.leader]}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
 
     });
 
