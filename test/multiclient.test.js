@@ -310,7 +310,7 @@ const api2 = require('../src/api');
                     .then(v => v.map((v) => assert(v === 123)));
             });
 
-            it.only('clients should be able to write, update, and read', async function () {
+            it('clients should be able to write, update, and read', async function () {
                 this.timeout(10000);
 
                 await Promise.all(arr.map((v) => eval('api' + v).create('myKey', 123)));
