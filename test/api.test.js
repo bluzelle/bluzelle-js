@@ -3,7 +3,7 @@ const api = require('../src/api');
 const assert = require('assert');
 const {isEqual} = require('lodash');
 
-const {despawnSwarm, swarm} = require('../test-daemon/setup');
+const {despawnSwarm, swarm} = require('../test-daemon/utils/setup');
 
 
 describe('bluzelle api', () => {

@@ -3,7 +3,7 @@ const WebSocketServer = require('websocket').server;
 const http = require('http');
 const reset = require('./reset');
 const assert = require('assert');
-const {despawnSwarm, swarm} = require('../test-daemon/setup');
+const {despawnSwarm, swarm} = require('../test-daemon/utils/setup');
 
 const bluzelle_pb = require('../proto/bluzelle_pb');
 const database_pb = require('../proto/database_pb');
