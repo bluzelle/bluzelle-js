@@ -1,18 +1,19 @@
 const reset = require('./reset');
 const api = require('../src/api');
 const assert = require('assert');
-const {killSwarm} = require('../test-daemon/swarmSetup');
 const {isEqual} = require('lodash');
+
+const {despawnSwarm, swarm} = require('../test-daemon/setup');
 
 
 describe('bluzelle api', () => {
 
     beforeEach(reset);
 
-    process.env.daemonIntegration && afterEach(killSwarm);
+    process.env.daemonIntegration && afterEach(despawnSwarm);
 
     beforeEach(() =>
-        api.connect(`ws://${process.env.address}:${process.env.port}`, '71e2cd35-b606-41e6-bb08-f20de30df76c'));
+        api.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c'));
 
 
     const isEqual = (a, b) =>
@@ -20,9 +21,9 @@ describe('bluzelle api', () => {
 
     it('should be able to connect many times', () => {
 
-        api.connect(`ws://${process.env.address}:${process.env.port}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
-        api.connect(`ws://${process.env.address}:${process.env.port}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
-        api.connect(`ws://${process.env.address}:${process.env.port}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+        api.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+        api.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+        api.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
 
     });
 
@@ -41,7 +42,7 @@ describe('bluzelle api', () => {
 
         let sortedResult = (await api.keys()).sort();
 
-        assert(isEqual(sortedResult, (['test','hello123']).sort()));
+        assert(isEqual(sortedResult, (['test', 'hello123']).sort()));
         assert(!isEqual(sortedResult, (['blah', 'bli']).sort()));
 
     });
@@ -57,7 +58,6 @@ describe('bluzelle api', () => {
         assert(await api.read('interestingString') === "aGVsbG8gd29ybGQNCg==");
 
     });
-
 
     it('should reject bad connections', done => {
 
@@ -131,7 +131,7 @@ describe('bluzelle api', () => {
     it('should return size 0 when db is empty', async () => {
 
         assert((await api.size()) === 0);
-      
+
     });
 
 });
