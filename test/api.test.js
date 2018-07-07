@@ -28,7 +28,7 @@ describe('bluzelle api', () => {
     });
 
 
-    it.only('should get an empty list of keys', async () => {
+    it('should get an empty list of keys', async () => {
 
         assert((await api.keys()).length === 0);
 
