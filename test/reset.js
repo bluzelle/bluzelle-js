@@ -1,5 +1,5 @@
 const communication = require('../src/communication');
-const {spawnSwarm} = require('../test-daemon/setup');
+const {spawnSwarm} = require('../test-daemon/utils/setup');
 const resetInNode = () => {
 
     if (process.env.daemonIntegration) {
