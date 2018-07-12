@@ -29,6 +29,8 @@ language: node_js
 node_js:
   - "node" # Use latest NodeJS
 
+
+  
 before_install:
   - ./travis_install.sh
 
