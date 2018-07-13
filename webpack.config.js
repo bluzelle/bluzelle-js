@@ -1,14 +1,25 @@
 const path = require('path');
 
-module.exports = {
-    mode: 'development',
-    entry: './src/api.js',
-    output: {
-        path: path.resolve('lib'),
-        filename: 'bluzelle.js',
-        libraryTarget: "umd",
-        library: 'bluzelle',
+module.exports = [
+    {
+        mode: 'development',
+        entry: './src/api.js',
+        output: {
+            path: path.resolve('lib'),
+            filename: 'bluzelle.node.js',
+            libraryTarget: "commonjs",
+        },
+        target: 'node',
     },
 
-    target: 'node'
-};
+    {
+        mode: 'development',
+        entry: './src/api.js',
+        output: {
+            path: path.resolve('lib'),
+            filename: 'bluzelle.web.js',
+            libraryTarget: "commonjs",
+        },
+        target: 'web',
+    }
+];
