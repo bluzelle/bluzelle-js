@@ -35,7 +35,7 @@ node_js:
   
 before_install:
   - ./travis_install.sh
-  - if [ "$daemonIntegration" = "true" ] ; then sudo apt-get install protobuf-compiler; else brew update; brew install protobuf; fi
+  - if [ "$emulatorIntegration" = "true" ] ; then brew update; brew install protobuf; fi
 
 
 build: 
