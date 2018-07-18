@@ -44,6 +44,6 @@ before_script:
 
 after_success:
 - if [ "$TRAVIS_BRANCH" = "master" ]; then
-    npm version "$PROJECT_VERSION"
+    npm version "$PROJECT_VERSION";
     npm publish;
   fi
