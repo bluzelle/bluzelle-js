@@ -38,7 +38,7 @@ before_install:
   - if [ "$emulatorIntegration" = "true" ] ; then brew update; brew unlink python; brew install protobuf; fi
 
 
-build: 
+after_install: 
   - webpack
 
 
