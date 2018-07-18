@@ -33,7 +33,7 @@ node_js:
   
 before_install:
   - ./travis_install.sh
-  - if [ "$daemonIntegration" = "true" ] ; then apt-get install protobuf; else brew install protobuf; fi
+  - if [ "$daemonIntegration" = "true" ] ; then sudo apt-get install protobuf; else sudo brew install protobuf; fi
   - webpack
 
 
