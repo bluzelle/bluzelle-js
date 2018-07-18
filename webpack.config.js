@@ -1,8 +1,10 @@
 const path = require('path');
+const WebpackShellPlugin = require('webpack-shell-plugin');
+
 
 module.exports = [
     {
-        mode: 'development',
+        mode: 'production',
         entry: './src/api.js',
         output: {
             path: path.resolve('lib'),
@@ -10,10 +12,14 @@ module.exports = [
             libraryTarget: "commonjs",
         },
         target: 'node',
+
+        plugins: [
+            new WebpackShellPlugin({onBuildStart: ['proto/updateProto.sh']})
+        ]
     },
 
     {
-        mode: 'development',
+        mode: 'production',
         entry: './src/api.js',
         output: {
             path: path.resolve('lib'),
@@ -21,5 +27,9 @@ module.exports = [
             libraryTarget: "commonjs",
         },
         target: 'web',
+
+        plugins: [
+            new WebpackShellPlugin({onBuildStart: ['proto/updateProto.sh']})
+        ]
     }
 ];

@@ -12,6 +12,7 @@ var goog = jspb;
 var global = Function('return this')();
 
 var database_pb = require('./database_pb.js');
+var audit_pb = require('./audit_pb.js');
 goog.exportSymbol('proto.bzn_msg', null, global);
 
 /**
@@ -39,7 +40,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<!Array<number>>}
  * @const
  */
-proto.bzn_msg.oneofGroups_ = [[10,11]];
+proto.bzn_msg.oneofGroups_ = [[10,11,12]];
 
 /**
  * @enum {number}
@@ -47,7 +48,8 @@ proto.bzn_msg.oneofGroups_ = [[10,11]];
 proto.bzn_msg.MsgCase = {
   MSG_NOT_SET: 0,
   DB: 10,
-  JSON: 11
+  JSON: 11,
+  AUDIT_MESSAGE: 12
 };
 
 /**
@@ -87,7 +89,8 @@ proto.bzn_msg.prototype.toObject = function(opt_includeInstance) {
 proto.bzn_msg.toObject = function(includeInstance, msg) {
   var f, obj = {
     db: (f = msg.getDb()) && database_pb.database_msg.toObject(includeInstance, f),
-    json: jspb.Message.getFieldWithDefault(msg, 11, "")
+    json: jspb.Message.getFieldWithDefault(msg, 11, ""),
+    auditMessage: (f = msg.getAuditMessage()) && audit_pb.audit_message.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -133,6 +136,11 @@ proto.bzn_msg.deserializeBinaryFromReader = function(msg, reader) {
       var value = /** @type {string} */ (reader.readString());
       msg.setJson(value);
       break;
+    case 12:
+      var value = new audit_pb.audit_message;
+      reader.readMessage(value,audit_pb.audit_message.deserializeBinaryFromReader);
+      msg.setAuditMessage(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -175,6 +183,14 @@ proto.bzn_msg.serializeBinaryToWriter = function(message, writer) {
     writer.writeString(
       11,
       f
+    );
+  }
+  f = message.getAuditMessage();
+  if (f != null) {
+    writer.writeMessage(
+      12,
+      f,
+      audit_pb.audit_message.serializeBinaryToWriter
     );
   }
 };
@@ -236,6 +252,36 @@ proto.bzn_msg.prototype.clearJson = function() {
  */
 proto.bzn_msg.prototype.hasJson = function() {
   return jspb.Message.getField(this, 11) != null;
+};
+
+
+/**
+ * optional audit_message audit_message = 12;
+ * @return {?proto.audit_message}
+ */
+proto.bzn_msg.prototype.getAuditMessage = function() {
+  return /** @type{?proto.audit_message} */ (
+    jspb.Message.getWrapperField(this, audit_pb.audit_message, 12));
+};
+
+
+/** @param {?proto.audit_message|undefined} value */
+proto.bzn_msg.prototype.setAuditMessage = function(value) {
+  jspb.Message.setOneofWrapperField(this, 12, proto.bzn_msg.oneofGroups_[0], value);
+};
+
+
+proto.bzn_msg.prototype.clearAuditMessage = function() {
+  this.setAuditMessage(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.bzn_msg.prototype.hasAuditMessage = function() {
+  return jspb.Message.getField(this, 12) != null;
 };
 
 
