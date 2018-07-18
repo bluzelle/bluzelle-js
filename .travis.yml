@@ -16,6 +16,8 @@ matrix:
       env: "daemonIntegration=true"
       addons: 
         apt:
+          packages:
+            - protobuf-compiler
           sources:
             - sourceline: 'deb https://bluzelle.jfrog.io/bluzelle/debian-local all unstable'
             - ubuntu-toolchain-r-test
@@ -33,7 +35,10 @@ node_js:
   
 before_install:
   - ./travis_install.sh
-  - if [ "$daemonIntegration" = "true" ] ; then sudo apt-get install protobuf-compiler; else brew install protobuf; fi
+  - if [ "$daemonIntegration" = "true" ] ; then sudo apt-get install protobuf-compiler; else brew update; brew install protobuf; fi
+
+
+build: 
   - webpack
 
 
