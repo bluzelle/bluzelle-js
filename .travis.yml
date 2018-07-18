@@ -33,6 +33,7 @@ node_js:
   
 before_install:
   - ./travis_install.sh
+  - webpack
 
 
 after_success:
