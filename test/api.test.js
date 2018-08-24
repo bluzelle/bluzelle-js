@@ -19,13 +19,29 @@ describe('bluzelle api', () => {
     const isEqual = (a, b) =>
         a.length === b.length && !a.some((v, i) => b[i] !== v);
 
-    it('should be able to connect many times', () => {
 
-        api.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
-        api.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
-        api.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+    it('should be able to connect', () => {});
+
+    it('should not be able to connect many times', () => {
+
+        const url = `ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`,
+            uuid = '71e2cd35-b606-41e6-bb08-f20de30df76c';
+
+        api.connect(url, uuid).then(
+            () => { throw new Error('Should have failed'); },
+            () => {});
+    
+    });
+
+
+    it('should be able to connect after a disconnect', async () => {
+
+        api.disconnect();
+
+        await api.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
 
     });
+
 
 
     it('should get an empty list of keys', async () => {
@@ -61,15 +77,16 @@ describe('bluzelle api', () => {
 
     it('should reject bad connections', done => {
 
-        api.connect('fdsfdas', 'fdsafsd');
-        api.keys().catch(() => done());
+        api.disconnect();
+
+        api.connect('fdsfdas', 'fdsafsd').catch(() => done());
 
     });
 
     it('should reject connection to a bad port', done => {
 
-        api.connect('ws://localhost:123', '71e2cd35-b606-41e6-bb08-f20de30df76c');
-        api.keys().catch(() => done());
+        api.connect('ws://localhost:123', '71e2cd35-b606-41e6-bb08-f20de30df76c')
+            .catch(() => done());
 
     });
 

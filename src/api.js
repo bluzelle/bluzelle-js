@@ -1,14 +1,13 @@
-const communication = require('./communication');
+const {connect: _connect, disconnect, sendPrimary, sendSecondary, sendObserver} = require('./communication');
 const {valToUInt8, uInt8ToVal} = require('./serialize');
 const bluzelle_pb = require('../proto/bluzelle_pb');
-const database_pb = require('../proto/database_pb');
 
 
 let uuid;
 const connect = (entrypoint, _uuid) => {
 
     uuid = _uuid;
-    communication.connect(entrypoint);
+    return _connect(entrypoint);
 
 };
 
@@ -24,8 +23,8 @@ const getTransactionId = (() => {
 
 const getMessagePrototype = () => {
 
-    const database_msg = new database_pb.database_msg();
-    const header = new database_pb.database_header();
+    const database_msg = new bluzelle_pb.database_msg();
+    const header = new bluzelle_pb.database_header();
 
     header.setDbUuid(uuid);
 
@@ -34,6 +33,7 @@ const getMessagePrototype = () => {
     return database_msg;
 
 };
+
 
 
 // Read-style functions
@@ -49,7 +49,7 @@ const read = key => {
     database_msg.setRead(database_read);
 
 
-    return send(database_msg).then(o => o.value).then(uInt8ToVal);
+    return sendPrimary(database_msg).then(o => o.read.value).then(uInt8ToVal);
 
 };
 
@@ -65,7 +65,7 @@ const has = key => {
     database_msg.setHas(database_has);
 
 
-    return send(database_msg).then(o => o.has);
+    return sendPrimary(database_msg).then(o => o.has.has);
 
 };
 
@@ -74,12 +74,12 @@ const keys = () => {
 
     const database_msg = getMessagePrototype();
 
-    const database_empty = new bluzelle_pb.database_empty();
+    const database_empty = new bluzelle_pb.database_request();
 
     database_msg.setKeys(database_empty);
 
 
-    return send(database_msg).then(o => o.keysList);
+    return sendPrimary(database_msg).then(o => o.keys.keysList);
 
 };
 
@@ -89,12 +89,12 @@ const size = () => {
 
     const database_msg = getMessagePrototype();
 
-    const database_empty = new bluzelle_pb.database_empty();
+    const database_empty = new bluzelle_pb.database_request();
 
     database_msg.setSize(database_empty);
 
 
-    return send(database_msg).then(o => o.size);
+    return sendPrimary(database_msg).then(o => o.size.bytes);
 
 };
 
@@ -102,104 +102,78 @@ const size = () => {
 
 // Write-style functions
 
-const update = (key, value) => new Promise((resolve, reject) => {
+const update = (key, value) => {
 
     const database_msg = getMessagePrototype();
 
-
-    const database_update = new database_pb.database_update();
+    const database_update = new bluzelle_pb.database_update();
 
     database_update.setKey(key);
 
     database_update.setValue(valToUInt8(value));
 
-
     database_msg.setUpdate(database_update);
 
 
-    subscribe(key).then(v => {
+    return sendSecondary(database_msg);
 
-        if(v === value) {
-            unsubscribe(key).then(resolve, reject);
-        }
-
-    }, reject);
+};
 
 
-    send(database_msg).catch(reject);
-
-});
-
-
-const create = (key, value) => new Promise((resolve, reject) => {
+const create = (key, value) => {
 
     const database_msg = getMessagePrototype();
 
-    const database_create = new database_pb.database_create();
+    const database_create = new bluzelle_pb.database_create();
 
     database_create.setKey(key);
 
     database_create.setValue(valToUInt8(value));
 
-
     database_msg.setCreate(database_create);
 
 
+    return sendSecondary(database_msg);
 
-    subscribe(key).then(v => {
-
-        if(v === value) {
-            unsubscribe(key).then(resolve, reject);
-        }
-
-    }, reject);
-
-
-    send(database_msg).catch(reject);
-
-
-});
+};
 
 
 
-const remove = key => new Promise((resolve, reject) => {
+const remove = key => {
 
     const database_msg = getMessagePrototype();
 
-    const database_delete = new database_pb.database_delete();
+    const database_delete = new bluzelle_pb.database_delete();
 
     database_delete.setKey(key);
 
     database_msg.setDelete(database_delete);
 
 
+    return sendSecondary(database_msg);
 
-    subscribe(key).then(v => {
-
-        if(v === undefined) {
-            unsubscribe(key).then(resolve, reject);
-        }
-
-    }, reject);
+};
 
 
-    send(database_msg).catch(reject);
 
-});
-
+// Subscription
 
 const subscribe = (key, observer) => {
 
+    // What do we do with the observer?
+    // It's linked to the tid.
+
+
     const database_msg = getMessagePrototype();
 
-    const database_subscribe = new database_pb.database_subscribe();
+    const database_subscribe = new bluzelle_pb.database_subscribe();
 
     database_subscribe.setKey(key);
 
     database_msg.setSubscribe(database_subscribe);
 
 
-    return send(database_subscribe);
+    return sendObserver(database_msg);
 
 };
 
@@ -208,20 +182,21 @@ const unsubscribe = key => {
 
     const database_msg = getMessagePrototype();
 
-    const database_unsubscribe = new database_pb.database_unsubscribe();
+    const database_unsubscribe = new bluzelle_pb.database_unsubscribe();
 
     database_unsubscribe.setKey(key);
 
     database_msg.setUnsubscribe(database_unsubscribe);
 
 
-    return send(database_unsubscribe);
+    return sendPrimary(database_msg);
 
 };
 
 
 module.exports = {
     connect,
+    disconnect,
     create,
     read,
     update,

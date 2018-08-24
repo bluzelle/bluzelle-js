@@ -1,6 +1,7 @@
 const WebSocket = require('isomorphic-ws');
 const {encode} = require('base64-arraybuffer');
 const {isEqual} = require('lodash');
+const bluzelle_pb = require('../proto/bluzelle_pb');
 
 
 const tidMap = new Map();
@@ -11,91 +12,82 @@ const secondaryConnection = {};
 
 const connect = address => {
 
-    if(primaryConnection) {
+    if(primaryConnection.socket && primaryConnection.socket.readyState === 1) {
 
-        throw new Error('bluzelle: already connected.');
+        return Promise.reject(new Error('bluzelle: already connected.'));
 
     }
 
 
-    newConnection(address, onPrimaryMessage, primaryConnection);
+    return newConnection(address, onMessage, primaryConnection);
 
 };
 
 
-const newConnection = (address, handleMessage, connectionObject = {}) => {
+const disconnect = () => {
+
+    primaryConnection.socket && primaryConnection.socket.close();
+    secondaryConnection.socket && secondaryConnection.socket.close();
+
+    delete primaryConnection.socket;
+    delete secondaryConnection.socket;
+
+};
 
 
-    // s.send(JSON.stringify({
-    //     'bzn-api': 'database',
-    //     msg: encode(message.serializeBinary())
-    // }));
+const newConnection = (address, handleMessage, connectionObject = {}) => 
+    new Promise((resolve, reject) => {
+
+    // connectionObject.socket && connectionObject.socket.close();
+
 
     connectionObject.address = address;
 
     connectionObject.socket = new WebSocket(address);
     connectionObject.socket.binaryType = "arraybuffer";
 
-    connectionObject.socket.onopen = () => {
-        resolve();
-    };
+    connectionObject.socket.onopen = () => resolve();
 
-    connectionObject.socket.onerror = (e) => {
-        throw new Error(e.error.message);
-    };
+    connectionObject.socket.onerror = (e) =>
+        reject(new Error(e.error.message));
 
     connectionObject.socket.onclose = (e) => {
 
-        // Reopen the connection.
-        newConnection(address, connectionObject);
+        // console.log('Bluzelle reconnecting.')
+
+        // // Reopen the connection.
+        // newConnection(address, connectionObject);
 
     };
 
-    connectionObject.socket.onmessage = e => {
+    connectionObject.socket.onmessage = e =>
         handleMessage(e.data);
-    };
 
-
-    return connectionObject;
-
-};
+});
 
 
 
-const onMessage = (bin, socket) => {
+const onMessage = bin => {
 
     if(typeof bin === 'string') {
         throw new Error('daemon returned string instead of binary')
     }
 
 
-    const response = database_pb.database_response.deserializeBinary(new Uint8Array(bin));
+    const response = bluzelle_pb.database_response.deserializeBinary(new Uint8Array(bin));
     const response_json = response.toObject();
 
     const id = response_json.header.transactionId;
 
 
-
-    // rather than having resolver/rejecter
-    // how about a promise that we can resolve or reject?
-
-    // or an object that has resolve, reject, resend?
-
-
-    const message = messages.get(id);
-    const resolver = resolvers.get(id);
-    const rejecter = rejecters.get(id);
-
-    resolvers.delete(id);
-    rejecters.delete(id);
-    messages.delete(id);
-
-
     if(id === undefined) {
-
         throw new Error('Received non-response_json message.');
-
     }
+
+    const o = tidMap.get(id);
+    tidMap.delete(id);
+
+
 
     if(response_json.redirect) {
 
@@ -105,43 +97,59 @@ const onMessage = (bin, socket) => {
 
         const addressAndPort = prefix + response_json.redirect.leaderHost + ':' + response_json.redirect.leaderPort;
 
-        connect(addressAndPort, uuid);
 
-        send(message, resolver, rejecter);
+
+        // Find a way to check if this address is going to the same node.
+
+
+        newConnection(addressAndPort, onMessage, secondaryConnection);
+
+        sendSecondary(o.database_msg).then(o.resolver, o.rejecter);
 
 
     } else {
 
-        // We want the raw binary output, as toObject() above will automatically
-        // convert the Uint8 array to base64.
+        if(response.hasError()) {
 
-        if(response_json.resp && response_json.resp.value) {
+            o.reject(new Error(response.getError().getMessage()));
 
-            response_json.resp.value = response.getResp().getValue();
+        } else {
+
+            resolve(response_json, response, o);
 
         }
-
-
-        resolver(response_json.resp || {});
 
     }
 
 };
 
 
+const resolve = (response_json, response, o) => {
 
-const send = (database_msg, socket) => {
+    // We want the raw binary output, as toObject() above will automatically
+    // convert the Uint8 array to base64.
 
-    socket.send(JSON.stringify({
-        'bzn-api': 'database',
-        msg: encode(database_msg.serializeBinary())
-    }));
+    if(response_json && response_json.read) {
+
+        response_json.read.value = response.getRead().getValue();
+
+    }
+
+    o.resolve(response_json || {});
 
 };
 
 
-const sendPrimary = database_msg => new Promise((resolve, reject) => {
+const getTransactionId = (() => {
 
+    let i = 0;
+
+    return () => i++;
+
+})();
+
+
+const send = (database_msg, socket) => new Promise((resolve, reject) => {
 
     const message = new bluzelle_pb.bzn_msg();
 
@@ -151,7 +159,6 @@ const sendPrimary = database_msg => new Promise((resolve, reject) => {
     database_msg.getHeader().setTransactionId(tid);
 
 
-
     tidMap.set(tid, {
         resolve,
         reject,
@@ -159,47 +166,68 @@ const sendPrimary = database_msg => new Promise((resolve, reject) => {
     });
 
 
-    // And then we want to decorate the function to handle redirection
-    // logic.
-    
+
+    socket.send(JSON.stringify({
+        'bzn-api': 'database',
+        msg: encode(message.serializeBinary())
+    }));
+
+});
+
+
+const sendPrimary = database_msg => 
+
     send(database_msg, primaryConnection.socket);
 
 
-});
+const sendSecondary = database_msg => {
 
 
-const sendSecondary = database_msg => new Promise((resolve, reject) => {
+    if(secondaryConnection.socket) {
+
+        send(database_msg, secondaryConnection.socket);
+
+    } else {
+
+        return sendPrimary(database_msg);
+
+    }
 
 
-
-});
+};
 
 
 const sendObserver = (database_msg, observer) => {
 
 
-    // Subsequent responses from the daemon using the same transaction
-    // id are piped to the observer.
+    // This function replaces the resolver and then calls the observer,
+    // as the resolver is automatically deleted after it resolves.
 
-    const replaceResolverWithObserver = () => {
+    const persistResolver = v => {
 
         const tid = database_msg.getHeader().getTransactionId();
-        
-        /// ...
+
+        tidMap.set({
+            resolver: persistResolver
+        });
+
+
+        observer(v);
 
     };
 
 
-    return sendPrimary(database_msg).then(replaceResolverWithObserver);
+    return sendPrimary(database_msg).then(persistResolver);
 
 };
 
 
 
 module.exports = {
-    connect, 
-    sendWrite,
+    connect,
+    disconnect,
     sendPrimary,
+    sendSecondary,
     sendObserver
 };
 
