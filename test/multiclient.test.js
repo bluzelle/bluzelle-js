@@ -22,10 +22,13 @@ const api2 = require('../lib/bluzelle.node');
 
         context('interacting with the same key', () => {
 
-            beforeEach(() => {
-                api1.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
+            beforeEach(async () => {
 
-                api2.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+                api1.disconnect();
+                api2.disconnect();
+
+                await api1.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
+                await api2.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
             });
 
             // it('api1 should be able to ping the connection', () =>
@@ -106,10 +109,13 @@ const api2 = require('../lib/bluzelle.node');
 
         context('interacting with the same key', () => {
 
-            beforeEach(() => {
-                api1.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
+            beforeEach(async () => {
 
-                api2.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
+                api1.disconnect();
+                api2.disconnect();
+
+                await api1.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
+                await api2.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
             });
 
             // it('api1 should be able to ping the connection', () =>
@@ -215,11 +221,17 @@ const api2 = require('../lib/bluzelle.node');
         context('four clients with unique UUID\'s', () => {
             let arr = [1, 2, 3, 4];
 
-            beforeEach(() => {
-                api1.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
-                api2.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
-                api3.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, 'cffb4aaa-5c4f-41e0-b098-c899635701e7');
-                api4.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, 'af56a449-ae8d-473d-aade-4fdf9dac5bfc');
+            beforeEach(async () => {
+
+                api1.disconnect();
+                api2.disconnect();
+                api3.disconnect();
+                api4.disconnect();
+
+                await api1.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '4982e0b0-0b2f-4c3a-b39f-26878e2ac814');
+                await api2.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+                await api3.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, 'cffb4aaa-5c4f-41e0-b098-c899635701e7');
+                await api4.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, 'af56a449-ae8d-473d-aade-4fdf9dac5bfc');
             });
 
 

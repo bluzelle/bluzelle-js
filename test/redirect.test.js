@@ -41,8 +41,6 @@ const {decode} = require('base64-arraybuffer');
         ws.on('connect', connection =>
             connection.on('message', ({utf8Data}) => {
 
-                debugger;
-
                 const command = JSON.parse(utf8Data);
 
                 if(command['bzn-api'] !== 'database') {
@@ -68,6 +66,7 @@ const {decode} = require('base64-arraybuffer');
                 redirect.setLeaderName('Sanchez');
                 redirect.setLeaderHost(process.env.address);
                 redirect.setLeaderPort(process.env.port);
+                redirect.setLeaderHttpPort(80);
 
                 db_response.setRedirect(redirect);
 
@@ -82,7 +81,7 @@ const {decode} = require('base64-arraybuffer');
 
     it('should follow a redirect and send the command to a different socket', async () => {
 
-        api.connect(`ws://${process.env.address}:${followerPort}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+        await api.connect(`ws://${process.env.address}:${followerPort}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
 
         await api.create('hey', '123');
         assert(await api.read('hey') === '123');

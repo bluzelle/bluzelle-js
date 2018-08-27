@@ -4,8 +4,6 @@ const {spawnSwarm, despawnSwarm} = require('../test-daemon/setup');
 
 const resetInNode = () => {
 
-    bluzelle.disconnect();
-
     if (process.env.daemonIntegration) {
 
 		return spawnSwarm();

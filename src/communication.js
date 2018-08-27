@@ -91,22 +91,22 @@ const onMessage = bin => {
 
     if(response_json.redirect) {
 
-        const isSecure = address.startsWith('wss://');
+        // const isSecure = address.startsWith('wss://');
+        // const prefix = isSecure ? 'wss://' : 'ws://';
 
-        const prefix = isSecure ? 'wss://' : 'ws://';
+        const prefix = 'ws://';
 
         const addressAndPort = prefix + response_json.redirect.leaderHost + ':' + response_json.redirect.leaderPort;
 
 
-
         // Find a way to check if this address is going to the same node.
 
+        newConnection(addressAndPort, onMessage, secondaryConnection).then(
+            () => sendSecondary(o.database_msg).then(o.resolve, o.reject),
+            o.reject
+        );
 
-        newConnection(addressAndPort, onMessage, secondaryConnection);
-
-        sendSecondary(o.database_msg).then(o.resolver, o.rejecter);
-
-
+        
     } else {
 
         if(response.hasError()) {
@@ -165,8 +165,6 @@ const send = (database_msg, socket) => new Promise((resolve, reject) => {
         database_msg
     });
 
-
-
     socket.send(JSON.stringify({
         'bzn-api': 'database',
         msg: encode(message.serializeBinary())
@@ -182,10 +180,9 @@ const sendPrimary = database_msg =>
 
 const sendSecondary = database_msg => {
 
-
     if(secondaryConnection.socket) {
 
-        send(database_msg, secondaryConnection.socket);
+        return send(database_msg, secondaryConnection.socket);
 
     } else {
 
