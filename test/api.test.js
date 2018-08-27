@@ -151,4 +151,48 @@ describe('bluzelle api', () => {
 
     });
 
+
+    it('should be able to subscribe to a key', async () => {
+
+        let observedValue;
+
+        await api.subscribe('test key', v => { observedValue = v; });
+
+        await api.create('test key', 100);
+
+
+        assert(observedValue === 100);
+
+        await api.update('test key', 'whence');
+
+        assert(observedValue === 'whence');
+
+    });
+
+
+    it('should throw an error when subscribing twice', done => {
+
+        api.subscribe('abc').then(() => {
+
+            api.subscribe('abc').catch(() => done());
+
+        });
+
+    });
+
+
+    it('should be able to unsubscribe from a key', async () => {
+
+        await api.subscribe('thence');
+
+        await api.unsubscribe('thence');
+
+    });
+
+    it('should throw an error when unsubscribing from a key where there is no subscription', done => {
+
+        api.unsubscribe('my sharona').catch(() => done());
+
+    });
+
 });
