@@ -2,6 +2,7 @@ const reset = require('./reset');
 const api = require('../lib/bluzelle.node');
 const assert = require('assert');
 const {isEqual} = require('lodash');
+const waitUntil = require('async-wait-until');
 
 const {despawnSwarm, swarm} = require('../test-daemon/setup');
 
@@ -158,15 +159,15 @@ describe('bluzelle api', () => {
 
         await api.subscribe('test key', v => { observedValue = v; });
 
-
         await api.create('test key', '100');
 
+        await waitUntil(() => observedValue === '100');
 
-        assert(observedValue === '100');
 
         await api.update('test key', 'whence');
 
-        assert(observedValue === 'whence');
+        await waitUntil(() => observedValue === 'whence');
+
 
     });
 
