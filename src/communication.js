@@ -135,6 +135,15 @@ const resolve = (response_json, response, o) => {
 
     }
 
+
+    if(response_json && response_json.subscriptionUpdate) {
+
+        response_json.subscriptionUpdate.value = 
+            response.getSubscriptionUpdate().getValue();
+
+    }
+
+
     o.resolve(response_json || {});
 
 };
@@ -196,20 +205,22 @@ const sendSecondary = database_msg => {
 
 const sendObserver = (database_msg, observer) => {
 
-
     // This function replaces the resolver and then calls the observer,
     // as the resolver is automatically deleted after it resolves.
 
     const persistResolver = v => {
 
+
         const tid = database_msg.getHeader().getTransactionId();
 
-        tidMap.set({
-            resolver: persistResolver
+        tidMap.set(tid, {
+            resolve: persistResolver,
+            reject: () => {},
+            db_message: {}
         });
 
 
-        observer(v);
+        v.subscriptionUpdate && observer(v.subscriptionUpdate.value);
 
     };
 

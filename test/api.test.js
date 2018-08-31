@@ -158,10 +158,11 @@ describe('bluzelle api', () => {
 
         await api.subscribe('test key', v => { observedValue = v; });
 
-        await api.create('test key', 100);
+
+        await api.create('test key', '100');
 
 
-        assert(observedValue === 100);
+        assert(observedValue === '100');
 
         await api.update('test key', 'whence');
 
@@ -183,11 +184,19 @@ describe('bluzelle api', () => {
 
     it('should be able to unsubscribe from a key', async () => {
 
-        await api.subscribe('thence');
+        let called;
+
+
+        await api.subscribe('thence', v => { called = true; });
 
         await api.unsubscribe('thence');
 
+        await api.create('thence', 'whence');
+
+        assert(!called);
+
     });
+
 
     it('should throw an error when unsubscribing from a key where there is no subscription', done => {
 

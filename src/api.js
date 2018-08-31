@@ -160,10 +160,6 @@ const remove = key => {
 
 const subscribe = (key, observer) => {
 
-    // What do we do with the observer?
-    // It's linked to the tid.
-
-
     const database_msg = getMessagePrototype();
 
     const database_subscribe = new bluzelle_pb.database_subscribe();
@@ -173,7 +169,7 @@ const subscribe = (key, observer) => {
     database_msg.setSubscribe(database_subscribe);
 
 
-    return sendObserver(database_msg);
+    return sendObserver(database_msg, v => observer(uInt8ToVal(v)));
 
 };
 
