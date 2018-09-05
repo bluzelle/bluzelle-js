@@ -88,7 +88,6 @@ const onMessage = bin => {
     tidMap.delete(id);
 
 
-
     if(response_json.redirect) {
 
         // const isSecure = address.startsWith('wss://');
@@ -142,7 +141,6 @@ const resolve = (response_json, response, o) => {
             response.getSubscriptionUpdate().getValue();
 
     }
-
 
     o.resolve(response_json || {});
 
@@ -209,7 +207,6 @@ const sendObserver = (database_msg, observer) => {
     // as the resolver is automatically deleted after it resolves.
 
     const persistResolver = v => {
-
 
         const tid = database_msg.getHeader().getTransactionId();
 

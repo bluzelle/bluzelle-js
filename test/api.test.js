@@ -65,7 +65,7 @@ describe('bluzelle api', () => {
     });
 
 
-    it('should be able to create and read text fields', async () => {
+    it.only('should be able to create and read text fields', async () => {
 
         await api.create('myOtherKey', "hello world");
         assert(await api.read('myOtherKey') === "hello world");
@@ -159,12 +159,12 @@ describe('bluzelle api', () => {
 
         await api.subscribe('test key', v => { observedValue = v; });
 
-        await api.create('test key', '100');
+        await api.createAck('test key', '100');
 
         await waitUntil(() => observedValue === '100');
 
 
-        await api.update('test key', 'whence');
+        await api.updateAck('test key', 'whence');
 
         await waitUntil(() => observedValue === 'whence');
 
@@ -192,7 +192,9 @@ describe('bluzelle api', () => {
 
         await api.unsubscribe('thence');
 
-        await api.create('thence', 'whence');
+        await api.createAck('thence', 'whence');
+
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         assert(!called);
 

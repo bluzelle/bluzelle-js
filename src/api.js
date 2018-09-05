@@ -102,7 +102,7 @@ const size = () => {
 
 // Write-style functions
 
-const update = (key, value) => {
+const updateAck = (key, value) => {
 
     const database_msg = getMessagePrototype();
 
@@ -120,7 +120,7 @@ const update = (key, value) => {
 };
 
 
-const create = (key, value) => {
+const createAck = (key, value) => {
 
     const database_msg = getMessagePrototype();
 
@@ -139,7 +139,7 @@ const create = (key, value) => {
 
 
 
-const remove = key => {
+const removeAck = key => {
 
     const database_msg = getMessagePrototype();
 
@@ -190,16 +190,54 @@ const unsubscribe = key => {
 };
 
 
+////////////////////////
+
+
+
+const _subscr = (key, value) => new Promise((resolve, reject) => {
+
+    subscribe(key, v => (v === value) && resolve()).catch(reject);
+
+});
+
+
+// Composite functions
+
+const create = (key, value) => new Promise((resolve, reject) => {
+
+    const s = _subscr(key, value);
+
+    createAck(key, value).catch(reject);
+
+    s.then(() => {
+
+        unsubscribe(key).then(resolve, reject);
+
+    }, reject);
+
+
+});
+
+
+const update = (key, value) => {};
+
+const remove = key => {};
+
+
+
 module.exports = {
     connect,
     disconnect,
-    create,
+    createAck,
     read,
-    update,
-    remove,
+    updateAck,
+    removeAck,
     has,
     keys,
     size,
     subscribe,
-    unsubscribe
+    unsubscribe,
+    create,
+    update,
+    remove
 };
