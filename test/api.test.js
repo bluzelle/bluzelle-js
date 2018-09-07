@@ -129,7 +129,7 @@ describe('bluzelle api', () => {
 
     });
 
-    it.only('should be able to create and read text fields', async () => {
+    it('should be able to create and read text fields', async () => {
 
         await api.create('myOtherKey', "hello world");
         assert(await api.read('myOtherKey') === "hello world");

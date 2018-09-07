@@ -209,7 +209,6 @@ const unsubscribe = tid => {
 ////////////////////////
 
 
-
 const subscribeCondition = (key, condition) => 
     new Promise((resolve, reject) => {
 
@@ -222,33 +221,45 @@ const subscribeCondition = (key, condition) =>
     });
 
 
-// Composite functions
 
-const create = (key, value) => new Promise((resolve, reject) => {
+const subscriptionAction = (key, condition, action) => 
+    new Promise((resolve, reject) => {
 
+    const p = subscribeCondition(key, condition);
 
-    const p = subscribeCondition(key, v => v === value);
+    setTimeout(() => action().catch(reject), 10);
 
-    setTimeout(() => {
-
-        createAck(key, value).catch(reject);
-
-        p.then(id => {
-
-            unsubscribe(id).then(resolve, reject);
-
-        }, reject);
-
-    }, 10);
-
+    p.then(id => unsubscribe(id).then(resolve, reject)).catch(reject);
 
 });
 
 
 
-const update = (key, value) => {};
+// Composite functions
 
-const remove = key => {};
+const create = (key, value) => 
+
+    subscriptionAction(
+        key, 
+        v => v === value, 
+        () => createAck(key, value));
+
+
+
+const update = (key, value) => 
+
+    subscriptionAction(
+        key,
+        v => v === value,
+        () => updateAck(key, value));
+
+
+const remove = key => 
+
+    subscriptionAction(
+        key, 
+        v => v === undefined,
+        () => removeAck(key));
 
 
 
