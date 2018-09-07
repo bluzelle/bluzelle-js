@@ -28,6 +28,8 @@ const getMessagePrototype = () => {
 
     header.setDbUuid(uuid);
 
+    header.setTransactionId(getTransactionId());
+
     database_msg.setHeader(header);
 
     return database_msg;
@@ -158,6 +160,10 @@ const removeAck = key => {
 
 // Subscription
 
+
+const tid_to_key = new Map();
+
+
 const subscribe = (key, observer) => {
 
     const database_msg = getMessagePrototype();
@@ -169,18 +175,28 @@ const subscribe = (key, observer) => {
     database_msg.setSubscribe(database_subscribe);
 
 
+    tid_to_key.set(
+        database_msg.getHeader().getTransactionId(),
+        key);
+
+
     return sendObserver(database_msg, v => observer(uInt8ToVal(v)));
 
 };
 
 
-const unsubscribe = key => {
+const unsubscribe = tid => {
 
     const database_msg = getMessagePrototype();
 
     const database_unsubscribe = new bluzelle_pb.database_unsubscribe();
 
+
+    const key = tid_to_key.get(tid);
+
+
     database_unsubscribe.setKey(key);
+    database_unsubscribe.setTransactionId(tid);
 
     database_msg.setUnsubscribe(database_unsubscribe);
 
@@ -194,29 +210,40 @@ const unsubscribe = key => {
 
 
 
-const _subscr = (key, value) => new Promise((resolve, reject) => {
+const subscribeCondition = (key, condition) => 
+    new Promise((resolve, reject) => {
 
-    subscribe(key, v => (v === value) && resolve()).catch(reject);
+        let s;
 
-});
+        s = subscribe(key, v => {
+            condition(v) && resolve(s)
+        }).catch(reject);
+
+    });
 
 
 // Composite functions
 
 const create = (key, value) => new Promise((resolve, reject) => {
 
-    const s = _subscr(key, value);
 
-    createAck(key, value).catch(reject);
+    const p = subscribeCondition(key, v => v === value);
 
-    s.then(() => {
+    setTimeout(() => {
 
-        unsubscribe(key).then(resolve, reject);
+        createAck(key, value).catch(reject);
 
-    }, reject);
+        p.then(id => {
+
+            unsubscribe(id).then(resolve, reject);
+
+        }, reject);
+
+    }, 10);
 
 
 });
+
 
 
 const update = (key, value) => {};

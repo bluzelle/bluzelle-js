@@ -52,6 +52,95 @@ describe('bluzelle api', () => {
     });
 
 
+    it('should be able to subscribe/unsubscribe to a key', async () => {
+
+        const id = await api.subscribe('test key', v => {});
+
+        assert(typeof id === 'number');
+
+        await api.unsubscribe(id);
+
+    });
+
+
+    it('should throw an error when unsubscribing from a key where there is no subscription', done => {
+
+        api.unsubscribe(0).catch(() => done());
+
+    });
+
+
+    it('should be able to use subscriptions', async () => {
+
+        let value;
+
+        const id = await api.subscribe('test key', v => { value = v; });
+
+        await api.createAck('test key', 'sharona');
+
+        await waitUntil(() => value === 'sharona');
+
+        await api.updateAck('test key', 'tuna');
+
+        await waitUntil(() => value === 'tuna');
+
+
+        await api.unsubscribe(id);
+
+        await api.updateAck('test key', 'thence');
+
+        // Wait 300ms
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        assert(value === 'tuna');
+
+
+        const id2 = await api.subscribe('test key', v => { value = v; });
+
+        await api.removeAck('test key');
+
+        await waitUntil(() => value === undefined);
+
+    });
+
+
+    it('should be able to have multiple subscriptions', async () => {
+
+        let value1, value2;
+
+        const id1 = await api.subscribe('whence', v => { value1 = v; });
+        const id2 = await api.subscribe('whence', v => { value2 = v; });
+
+        api.createAck('whence', 'thence');
+
+        await waitUntil(() => 
+            value1 === 'thence' && 
+            value2 === 'thence');
+
+        await api.unsubscribe(id1);
+
+        api.updateAck('whence', 'my sharona');
+
+
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        assert(value1 === 'thence' && 
+            value2 === 'my sharona');
+
+    });
+
+    it.only('should be able to create and read text fields', async () => {
+
+        await api.create('myOtherKey', "hello world");
+        assert(await api.read('myOtherKey') === "hello world");
+
+
+        await api.create('interestingString', "aGVsbG8gd29ybGQNCg==");
+        assert(await api.read('interestingString') === "aGVsbG8gd29ybGQNCg==");
+
+    });
+
+
     it('should be able to get a list of keys', async () => {
 
         await api.create('hello123', '10');
@@ -64,17 +153,6 @@ describe('bluzelle api', () => {
 
     });
 
-
-    it.only('should be able to create and read text fields', async () => {
-
-        await api.create('myOtherKey', "hello world");
-        assert(await api.read('myOtherKey') === "hello world");
-
-
-        await api.create('interestingString', "aGVsbG8gd29ybGQNCg==");
-        assert(await api.read('interestingString') === "aGVsbG8gd29ybGQNCg==");
-
-    });
 
     it('should reject bad connections', done => {
 
@@ -152,59 +230,5 @@ describe('bluzelle api', () => {
 
     });
 
-
-    it('should be able to subscribe to a key', async () => {
-
-        let observedValue;
-
-        await api.subscribe('test key', v => { observedValue = v; });
-
-        await api.createAck('test key', '100');
-
-        await waitUntil(() => observedValue === '100');
-
-
-        await api.updateAck('test key', 'whence');
-
-        await waitUntil(() => observedValue === 'whence');
-
-
-    });
-
-
-    it('should throw an error when subscribing twice', done => {
-
-        api.subscribe('abc').then(() => {
-
-            api.subscribe('abc').catch(() => done());
-
-        });
-
-    });
-
-
-    it('should be able to unsubscribe from a key', async () => {
-
-        let called;
-
-
-        await api.subscribe('thence', v => { called = true; });
-
-        await api.unsubscribe('thence');
-
-        await api.createAck('thence', 'whence');
-
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        assert(!called);
-
-    });
-
-
-    it('should throw an error when unsubscribing from a key where there is no subscription', done => {
-
-        api.unsubscribe('my sharona').catch(() => done());
-
-    });
 
 });

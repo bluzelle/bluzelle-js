@@ -38,9 +38,6 @@ const disconnect = () => {
 const newConnection = (address, handleMessage, connectionObject = {}) => 
     new Promise((resolve, reject) => {
 
-    // connectionObject.socket && connectionObject.socket.close();
-
-
     connectionObject.address = address;
 
     connectionObject.socket = new WebSocket(address);
@@ -51,15 +48,6 @@ const newConnection = (address, handleMessage, connectionObject = {}) =>
     connectionObject.socket.onerror = (e) =>
         reject(new Error(e.error.message));
 
-    connectionObject.socket.onclose = (e) => {
-
-        // console.log('Bluzelle reconnecting.')
-
-        // // Reopen the connection.
-        // newConnection(address, connectionObject);
-
-    };
-
     connectionObject.socket.onmessage = e =>
         handleMessage(e.data);
 
@@ -67,7 +55,7 @@ const newConnection = (address, handleMessage, connectionObject = {}) =>
 
 
 
-const onMessage = bin => {
+const onMessage = bin => {    
 
     if(typeof bin === 'string') {
         throw new Error('daemon returned string instead of binary')
@@ -84,14 +72,13 @@ const onMessage = bin => {
         throw new Error('Received non-response_json message.');
     }
 
+
     const o = tidMap.get(id);
-    tidMap.delete(id);
+
+    tidMap.delete(o);
 
 
     if(response_json.redirect) {
-
-        // const isSecure = address.startsWith('wss://');
-        // const prefix = isSecure ? 'wss://' : 'ws://';
 
         const prefix = 'ws://';
 
@@ -142,18 +129,10 @@ const resolve = (response_json, response, o) => {
 
     }
 
+    
     o.resolve(response_json || {});
 
 };
-
-
-const getTransactionId = (() => {
-
-    let i = 0;
-
-    return () => i++;
-
-})();
 
 
 const send = (database_msg, socket) => new Promise((resolve, reject) => {
@@ -162,8 +141,7 @@ const send = (database_msg, socket) => new Promise((resolve, reject) => {
 
     message.setDb(database_msg);
 
-    const tid = getTransactionId();
-    database_msg.getHeader().setTransactionId(tid);
+    const tid = database_msg.getHeader().getTransactionId();
 
 
     tidMap.set(tid, {
@@ -218,6 +196,8 @@ const sendObserver = (database_msg, observer) => {
 
 
         v.subscriptionUpdate && observer(v.subscriptionUpdate.value);
+
+        return tid;
 
     };
 
