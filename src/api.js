@@ -202,7 +202,9 @@ const unsubscribe = tid => {
     database_msg.setUnsubscribe(database_unsubscribe);
 
 
-    return sendPrimary(database_msg);
+    return sendPrimary(database_msg).then(() => 
+
+        tid_to_key.delete(tid));
 
 };
 
