@@ -179,6 +179,7 @@ describe('bluzelle api', () => {
 
         await api.create('myKey', 'abc');
         await api.remove('myKey');
+
         assert(!await api.has('myKey'));
 
     });

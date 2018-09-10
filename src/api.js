@@ -1,6 +1,7 @@
 const {connect: _connect, disconnect, sendPrimary, sendSecondary, sendObserver} = require('./communication');
 const {valToUInt8, uInt8ToVal} = require('./serialize');
 const bluzelle_pb = require('../proto/bluzelle_pb');
+const waitUntil = require('async-wait-until');
 
 
 let uuid;
@@ -208,58 +209,41 @@ const unsubscribe = tid => {
 
 ////////////////////////
 
+const subscriptionAction = async (key, value, action) => {
 
-// So it's not waiting for the subscribe
+    let v;
+    let set;
 
-const subscribeCondition = (key, condition) => 
-    new Promise((resolve, reject) => {
+    const s = await subscribe(key, v2 => { set = true; v = v2; });
 
-        let s;
+    await action();
 
-        s = subscribe(key, v => {
-            condition(v) && resolve(s)
-        }).catch(reject);
+    await waitUntil(() => set === true && v === value);
 
-    });
+    await unsubscribe(s);
 
+};
 
-
-const subscriptionAction = (key, condition, action) => 
-    new Promise((resolve, reject) => {
-
-    const p = subscribeCondition(key, condition);
-
-    setTimeout(() => action().catch(reject), 10);
-
-    p.then(id => unsubscribe(id).then(resolve, reject)).catch(reject);
-
-});
 
 
 // Composite functions
 
 const create = (key, value) => 
 
-    subscriptionAction(
-        key, 
-        v => v === value, 
+    subscriptionAction(key, value, 
         () => createAck(key, value));
 
 
 
 const update = (key, value) => 
 
-    subscriptionAction(
-        key,
-        v => v === value,
+    subscriptionAction(key, value,
         () => updateAck(key, value));
 
 
 const remove = key => 
 
-    subscriptionAction(
-        key, 
-        v => v === undefined,
+    subscriptionAction(key, undefined,
         () => removeAck(key));
 
 

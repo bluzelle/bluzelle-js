@@ -65,7 +65,7 @@ const onMessage = bin => {
     const response = bluzelle_pb.database_response.deserializeBinary(new Uint8Array(bin));
     const response_json = response.toObject();
 
-    console.log("\nRecieving\n",response_json);
+    // console.log("\nRecieving\n",response_json);
 
     const id = response_json.header.transactionId;
 
@@ -86,8 +86,6 @@ const onMessage = bin => {
 
         const addressAndPort = prefix + response_json.redirect.leaderHost + ':' + response_json.redirect.leaderPort;
 
-
-        console.log("REDIRECTING")
 
         // Find a way to check if this address is going to the same node.
 
@@ -148,9 +146,8 @@ const send = (database_msg, socket) => new Promise((resolve, reject) => {
     const tid = database_msg.getHeader().getTransactionId();
 
 
-    const json = database_msg.toObject();
-    console.log("\nSending\n", json);
-
+    // const json = database_msg.toObject();
+    // console.log("\nSending\n", json);
 
 
     tidMap.set(tid, {
