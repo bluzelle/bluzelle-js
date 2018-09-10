@@ -209,6 +209,8 @@ const unsubscribe = tid => {
 ////////////////////////
 
 
+// So it's not waiting for the subscribe
+
 const subscribeCondition = (key, condition) => 
     new Promise((resolve, reject) => {
 
@@ -232,7 +234,6 @@ const subscriptionAction = (key, condition, action) =>
     p.then(id => unsubscribe(id).then(resolve, reject)).catch(reject);
 
 });
-
 
 
 // Composite functions

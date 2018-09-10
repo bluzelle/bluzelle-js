@@ -12,7 +12,7 @@ const {decode} = require('base64-arraybuffer');
 
 
 // Run if not testing in browser
-(typeof window === 'undefined' ? describe : describe.skip)('redirect', () => {
+(typeof window === 'undefined' ? describe.only : describe.skip)('redirect', () => {
 
     beforeEach(reset);
 

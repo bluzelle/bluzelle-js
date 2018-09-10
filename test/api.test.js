@@ -121,10 +121,8 @@ describe('bluzelle api', () => {
 
         api.updateAck('whence', 'my sharona');
 
-
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        assert(value1 === 'thence' && 
+        await waitUntil(() =>
+            value1 === 'thence' && 
             value2 === 'my sharona');
 
     });
