@@ -22,6 +22,7 @@ matrix:
             - sourceline: 'deb https://bluzelle.jfrog.io/bluzelle/debian-local all unstable'
             - ubuntu-toolchain-r-test
             - sourceline: 'deb http://ppa.launchpad.net/maarten-fonville/protobuf/ubuntu trusty main'
+              key_url: 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x4DEA8909DC6A13A3'
     - os: osx
       env: "emulatorIntegration=true"
 
