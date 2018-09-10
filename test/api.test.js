@@ -4,7 +4,7 @@ const assert = require('assert');
 const {isEqual} = require('lodash');
 const waitUntil = require('async-wait-until');
 
-const {despawnSwarm, swarm} = require('../test-daemon/setup');
+const {despawnSwarm, swarm} = require('../test-daemon/utils/setup');
 
 
 describe('bluzelle api', () => {

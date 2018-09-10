@@ -1,5 +1,5 @@
 const bluzelle = require('../lib/bluzelle.node');
-const {spawnSwarm, despawnSwarm} = require('../test-daemon/setup');
+const {spawnSwarm} = require('../test-daemon/utils/setup');
 
 
 const resetInNode = () => {
