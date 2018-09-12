@@ -146,8 +146,7 @@ const send = (database_msg, socket) => new Promise((resolve, reject) => {
     const tid = database_msg.getHeader().getTransactionId();
 
 
-    // const json = database_msg.toObject();
-    // console.log("\nSending\n", json);
+    // console.log("\nSending\n", database_msg.toObject());
 
 
     tidMap.set(tid, {
