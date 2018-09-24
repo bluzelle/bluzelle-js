@@ -54,6 +54,9 @@ const newConnection = (address, handleMessage, connectionObject = {}) =>
 });
 
 
+const ackMessage = response => 
+        response.getResponseCase() === 0;
+
 
 const onMessage = bin => {    
 
@@ -75,9 +78,25 @@ const onMessage = bin => {
     }
 
 
+    // If the message is not in the resolution map, it has already
+    // been resolved from the acknowledgement.
+
+    if(!tidMap.has(id)) {
+        return;
+    }
+
+
     const o = tidMap.get(id);
 
-    tidMap.delete(o);
+
+    // Delete the message from the resolution map it's not needed
+    // after this.
+
+    if(o.resolve_on_ack || !ackMessage(response)) {
+
+        tidMap.delete(o);
+
+    }
 
 
     if(response_json.redirect) {
@@ -103,7 +122,12 @@ const onMessage = bin => {
 
         } else {
 
-            resolve(response_json, response, o);
+            if((ackMessage(response) && o.resolve_on_ack) ||
+               (!ackMessage(response) && !o.resolve_on_ack)) {
+
+                resolve(response_json, response, o);
+
+            }       
 
         }
 
@@ -113,6 +137,7 @@ const onMessage = bin => {
 
 
 const resolve = (response_json, response, o) => {
+
 
     // We want the raw binary output, as toObject() above will automatically
     // convert the Uint8 array to base64.
@@ -131,13 +156,18 @@ const resolve = (response_json, response, o) => {
 
     }
 
-    
+
+        
+    // The resolution arguments are the response_json, followed by
+    // if the message is an ack. The latter can be deduced from the
+    // former, but it's cleaner to check ack from the protobuf object.
+
     o.resolve(response_json || {});
 
 };
 
 
-const send = (database_msg, socket) => new Promise((resolve, reject) => {
+const send = (database_msg, socket, resolve_on_ack) => new Promise((resolve, reject) => {
 
     const message = new bluzelle_pb.bzn_msg();
 
@@ -150,6 +180,7 @@ const send = (database_msg, socket) => new Promise((resolve, reject) => {
 
 
     tidMap.set(tid, {
+        resolve_on_ack,
         resolve,
         reject,
         database_msg
@@ -163,51 +194,23 @@ const send = (database_msg, socket) => new Promise((resolve, reject) => {
 });
 
 
-const sendPrimary = database_msg => 
+const sendPrimary = (database_msg, resolve_on_ack) => 
 
-    send(database_msg, primaryConnection.socket);
+    send(database_msg, primaryConnection.socket, resolve_on_ack);
 
 
-const sendSecondary = database_msg => {
+const sendSecondary = (database_msg, resolve_on_ack) => {
 
     if(secondaryConnection.socket) {
 
-        return send(database_msg, secondaryConnection.socket);
+        return send(database_msg, secondaryConnection.socket, resolve_on_ack);
 
     } else {
 
-        return sendPrimary(database_msg);
+        return sendPrimary(database_msg, resolve_on_ack);
 
     }
 
-
-};
-
-
-const sendObserver = (database_msg, observer) => {
-
-    // This function replaces the resolver and then calls the observer,
-    // as the resolver is automatically deleted after it resolves.
-
-    const persistResolver = v => {
-
-        const tid = database_msg.getHeader().getTransactionId();
-
-        tidMap.set(tid, {
-            resolve: persistResolver,
-            reject: () => {},
-            db_message: {}
-        });
-
-
-        v.subscriptionUpdate && observer(v.subscriptionUpdate.value);
-
-        return tid;
-
-    };
-
-
-    return sendPrimary(database_msg).then(persistResolver);
 
 };
 
@@ -218,6 +221,5 @@ module.exports = {
     disconnect,
     sendPrimary,
     sendSecondary,
-    sendObserver
 };
 
