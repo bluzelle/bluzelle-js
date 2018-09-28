@@ -163,9 +163,18 @@ const send = (database_msg, socket) => new Promise((resolve, reject) => {
 });
 
 
-const sendPrimary = database_msg => 
+const sendPrimary = database_msg => {
+
+    if(!primaryConnection.socket) {
+
+        return Promise.reject(new Error(
+            "Bluzelle: attempting to send message with no connection."));
+
+    }
 
     send(database_msg, primaryConnection.socket);
+
+};
 
 
 const sendSecondary = database_msg => {

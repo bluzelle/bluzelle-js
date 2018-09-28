@@ -231,3 +231,10 @@ describe('bluzelle api', () => {
 
 
 });
+
+
+it('should reject a command if there is no connection', async () => {
+
+    await assert.rejects(api.read('mykey'));
+
+});
