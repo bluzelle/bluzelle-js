@@ -161,15 +161,6 @@ describe('bluzelle api', () => {
 
     });
 
-
-    it('should reject bad connections', done => {
-
-        api.disconnect();
-
-        api.connect('fdsfdas', 'fdsafsd').catch(() => done());
-
-    });
-
     it('should reject connection to a bad port', done => {
 
         api.connect('ws://localhost:123', '71e2cd35-b606-41e6-bb08-f20de30df76c')
