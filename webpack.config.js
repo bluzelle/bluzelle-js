@@ -9,7 +9,7 @@ const WebpackShellPlugin = require('webpack-shell-plugin');
 const mode = 
 
     'TRAVIS_BUILD_STAGE_NAME' in process.env &&
-    process.env[TRAVIS_BUILD_STAGE_NAME] === 'Deploy' 
+    process.env['TRAVIS_BUILD_STAGE_NAME'] === 'Deploy' 
         
         ? 'production' : 'development';
 
