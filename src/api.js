@@ -78,7 +78,7 @@ const onMessage = (client, bin) => {
 
     if(o.resolve_on_ack || !ackMessage(response)) {
 
-        tidMap.delete(o);
+        client.tidMap.delete(o);
 
     }
 
