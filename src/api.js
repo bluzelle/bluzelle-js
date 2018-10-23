@@ -46,7 +46,7 @@ const onMessage = (client, bin) => {
 
 
     client.logger && 
-        setTimeout(() => client.logger("\nRecieving\n",response_json), 0);
+        setTimeout(() => client.logger("Receiving",response_json), 0);
 
 
 
@@ -140,7 +140,7 @@ const send = (client, database_msg, socket) =>
 
 
     client.logger && 
-        setTimeout(() => client.logger("\nSending\n", database_msg.toObject()), 0);
+        setTimeout(() => client.logger("Sending", database_msg.toObject()), 0);
 
 
     let serializedMessage;
