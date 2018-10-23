@@ -151,6 +151,7 @@ describe('bluzelle api', () => {
     it('should be able to create and read values that are empty strings', async () => {
 
         await api.create('emptykey', '');
+
         assert(await api.read('emptykey') === '');
 
     });

@@ -46,7 +46,7 @@ const onMessage = (client, bin) => {
 
 
     client.logger && 
-        setTimeout(() => client.logger("Receiving",response_json), 0);
+        setTimeout(() => client.logger("Receiving", response_json), 0);
 
 
 
@@ -109,7 +109,7 @@ const resolve = (response_json, response, o) => {
 
     if(response_json && response_json.read) {
 
-        response_json.read.value = response.getRead().getValue();
+        response_json.read.value = response.getRead().getValue_asU8();
 
     }
 
@@ -117,7 +117,15 @@ const resolve = (response_json, response, o) => {
     if(response_json && response_json.subscriptionUpdate) {
 
         response_json.subscriptionUpdate.value = 
-            response.getSubscriptionUpdate().getValue();
+            response.getSubscriptionUpdate().getValue_asU8();
+
+
+        // Set the value to undefined if it has been deleted.
+        // This propagates through the deserialization and remains undefined to the user.
+
+        if(response.getSubscriptionUpdate().getOperation() === proto.database_subscription_update.operation_type.DELETE) {
+            response_json.subscriptionUpdate.value = undefined;
+        }
 
     }
 
