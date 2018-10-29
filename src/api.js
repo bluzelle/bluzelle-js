@@ -16,13 +16,59 @@ const newConnection = (client, address, connectionObject = {}) =>
     connectionObject.socket = new WebSocket(address);
     connectionObject.socket.binaryType = "arraybuffer";
 
-    connectionObject.socket.onopen = () => resolve();
+    const ws = connectionObject.socket;
 
-    connectionObject.socket.onerror = (e) =>
-        reject("Websocket connection error");
+
+    // Timeout
+
+    const timeout = 2000;
+    setTimeout(() => {
+
+        // 0 - connecting
+        if(ws.readyState !== 0) {
+            return;
+        }
+
+        ws.close();
+
+
+        client.logger && 
+            setTimeout(() => client.logger("Connection error", {
+                address
+            }), 0);
+
+        reject(new Error("Websocket connection error"));
+
+
+    }, timeout);
+
+
+    
+    connectionObject.socket.onopen = () => {
+
+        client.logger && 
+            setTimeout(() => client.logger("Connection open", {
+                address
+            }), 0);
+
+        resolve();
+
+    }
+
+    connectionObject.socket.onerror = (e) => {
+
+        client.logger && 
+            setTimeout(() => client.logger("Connection error", {
+                address
+            }), 0);
+
+        reject(new Error("Websocket connection error"));
+    
+    }
 
     connectionObject.socket.onmessage = e =>
         onMessage(client, e.data);
+
 
 });
 
@@ -75,6 +121,12 @@ const onMessage = (client, bin) => {
         const prefix = 'ws://';
 
         const addressAndPort = prefix + response_json.redirect.leaderHost + ':' + response_json.redirect.leaderPort;
+
+
+        client.logger && 
+            setTimeout(() => client.logger("Redirecting", {
+                address: addressAndPort
+            }), 0);
 
 
         // Find a way to check if this address is going to the same node.
