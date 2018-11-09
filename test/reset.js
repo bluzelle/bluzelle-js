@@ -1,12 +1,24 @@
 const bluzelle = require('../lib/bluzelle-node');
+const SwarmState = require('../test-daemon/utils/swarm');
+const {generateSwarmJsons, resetConfigCounter} = require('../test-daemon/utils/configs');
 const {spawnSwarm} = require('../test-daemon/utils/setup');
 
-
-const resetInNode = () => {
+const resetInNode = async () => {
 
     if (process.env.daemonIntegration) {
+        const numOfNodes = process.env.numOfNodes ? process.env.numOfNodes : 3;
+        const consensusAlgorithm = process.env.consensusAlgorithm ? process.env.consensusAlgorithm : 'raft';
+        const PATH_TO_CONFIG_TEMPLATE = `./test-daemon/configs/${consensusAlgorithm}-template.json`;
 
-		return spawnSwarm();
+        resetConfigCounter();
+
+        let [configObject] = await generateSwarmJsons(numOfNodes, PATH_TO_CONFIG_TEMPLATE);
+
+        let swarm = new SwarmState(configObject);
+
+        await spawnSwarm(swarm, {consensusAlgorithm: consensusAlgorithm});
+
+        return swarm;
 
     } else {
 

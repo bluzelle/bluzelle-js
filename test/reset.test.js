@@ -1,12 +1,16 @@
 const reset = require('./reset');
 const { BluzelleClient } = require('../lib/bluzelle-node');
 const assert = require('assert');
-const {despawnSwarm, swarm} = require('../test-daemon/utils/setup');
+const {despawnSwarm} = require('../test-daemon/utils/setup');
 
+let swarm;
 
 describe('reset', () => {
 
-    beforeEach(reset);
+    beforeEach(async function () {
+        this.timeout(20000);
+        swarm = await reset();
+    });
 
     process.env.daemonIntegration && afterEach(despawnSwarm);
 
@@ -18,7 +22,7 @@ describe('reset', () => {
     beforeEach(() => {
 
         api = new BluzelleClient(
-            `ws://localhost:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, 
+            `ws://localhost:${process.env.daemonIntegration ? swarm[swarm.leader].port : 8100}`,
             '71e2cd35-b606-41e6-bb08-f20de30df76c');
 
         return api.connect();

@@ -6,6 +6,8 @@
   "ethereum_io_api_token" : "*****************************",
   "bootstrap_file" : "./peers.json",
   "uuid" : "60ba0788-9992-4cdb-b1f7-9f68eef52ab9",
+  "use_pbft" : true,
+  "audit_enabled" : true,
   "debug_logging" : true,
   "log_to_stdout" : true
 }

@@ -4,22 +4,26 @@ const assert = require('assert');
 const {isEqual} = require('lodash');
 const waitUntil = require('async-wait-until');
 
-const {despawnSwarm, swarm} = require('../test-daemon/utils/setup');
+const {despawnSwarm} = require('../test-daemon/utils/setup');
 
+let swarm;
 
 describe('bluzelle api', () => {
 
-    beforeEach(reset);
+    beforeEach('reset swarm', async function () {
+        this.timeout(20000);
+        swarm = await reset();
+    });
 
     process.env.daemonIntegration && afterEach(despawnSwarm);
 
 
     let api;
 
-    beforeEach(() => {
+    beforeEach('connect client', () => {
 
         api = new BluzelleClient(
-            `ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, 
+            `ws://${process.env.address}:${process.env.daemonIntegration ? swarm[swarm.leader].port : 8100}`,
             '71e2cd35-b606-41e6-bb08-f20de30df76c', 
             false
             );
@@ -37,7 +41,7 @@ describe('bluzelle api', () => {
 
     it('should not be able to connect many times', async () => {
 
-        const url = `ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`,
+        const url = `ws://${process.env.address}:${process.env.daemonIntegration ? swarm[swarm.leader].port : 8100}`,
             uuid = '71e2cd35-b606-41e6-bb08-f20de30df76c';
 
         await assert.rejects(api.connect(url, uuid));
@@ -49,7 +53,7 @@ describe('bluzelle api', () => {
 
         api.disconnect();
 
-        await api.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm.list[swarm.leader] : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
+        await api.connect(`ws://${process.env.address}:${process.env.daemonIntegration ? swarm[swarm.leader].port : 8100}`, '71e2cd35-b606-41e6-bb08-f20de30df76c');
 
     });
 
