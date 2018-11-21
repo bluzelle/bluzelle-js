@@ -45,7 +45,11 @@ const verify = (msg, sig, key) => {
 };
 
 
-const sign = () => {};
+const sign = () => {
+
+    
+    
+};
 
 
 module.exports = {

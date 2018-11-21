@@ -15,6 +15,7 @@ it('ECDSA Verification', () => {
     assert(verify(msg_bin, sig_bin, key));
 
 
+    // Mutate signature 
     sig_bin[43] += 1;
 
     assert(!verify(msg_bin, sig_bin, key));
@@ -24,6 +25,6 @@ it('ECDSA Verification', () => {
 
 it('ECDSA Signing', () => {
 
-    
+
 
 });
