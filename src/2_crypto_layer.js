@@ -32,8 +32,7 @@ module.exports = class Crypto {
 
     sendOutgoingMsg(msg) {
 
-        assert(msg instanceof database_pb.database_msg,
-            "Sent message not an instance of database_msg.");
+        assert(msg instanceof database_pb.database_msg);
 
 
         const bin = msg.serializeBinary();
@@ -62,8 +61,7 @@ module.exports = class Crypto {
         }
 
 
-        assert(msg instanceof Buffer,
-            "Msg not an instance of Buffer.");
+        assert(msg instanceof Buffer);
 
 
         // Verification not implemented

@@ -48,7 +48,7 @@ module.exports = class API {
                 }
 
                 assert(incoming_msg.getResponseCase === null,
-                    "A response other than error or ack has been returned from daemon.");
+                    "A response other than error or ack has been returned from daemon for create.");
 
                 resolve();
 
