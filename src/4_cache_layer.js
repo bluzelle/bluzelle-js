@@ -27,7 +27,7 @@ module.exports = class Cache {
         this.retries = new Map();
 
         this.MAX_RETRIES = 3;
-        this.RETRY_TIMEOUT = 100;
+        this.RETRY_TIMEOUT = 3;
 
     }
 

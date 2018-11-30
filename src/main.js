@@ -23,41 +23,54 @@ const API = require('./7_api_layer');
 
 module.exports = (entry, private_pem, uuid) => {
 
+    const layers = [
+        new Connection({ entry, }),
+        new Crypto({ private_pem, }),
+        new Redirect({}),
+        new Cache({}),
+        new Metadata({ uuid, }),
+    ];
 
-    // Glue the layers together
+    const sandwich = connect_layers(layers);
 
-    // Find a way to handle this automatically.
-
-    const connection = new Connection({
-        entry, 
-    });
-
-    const crypto = new Crypto({
-        private_pem,
-    });
-
-    const redirect = new Redirect({});
-
-    const cache = new Cache({});
-
-    const metadata = new Metadata({
-        uuid,
-    });
-
-
-    connection.onIncomingMsg = crypto.sendIncomingMsg.bind(crypto);
-    crypto.onIncomingMsg = redirect.sendIncomingMsg.bind(redirect);
-    crypto.onOutgoingMsg = connection.sendOutgoingMsg.bind(connection);
-    redirect.onIncomingMsg = cache.sendIncomingMsg.bind(cache);
-    redirect.onOutgoingMsg = crypto.sendOutgoingMsg.bind(crypto);
-    cache.onIncomingMsg = metadata.sendIncomingMsg.bind(metadata);
-    cache.onOutgoingMsg = redirect.sendOutgoingMsg.bind(redirect);
-    metadata.onOutgoingMsg = cache.sendOutgoingMsg.bind(cache);
-
-
-    api = new API(metadata.sendOutgoingMsg.bind(metadata));
+    api = new API(sandwich.sendOutgoingMsg);
 
 
     return api;
+
+};
+
+
+const connect_layers = layers => {
+
+    layers.forEach((layer, i) => {
+
+        const precedessor = 
+            i === 0 ? 
+                undefined : 
+                layers[i - 1];
+
+        const successor = 
+            i === layers.length - 1 ? 
+                undefined : 
+                layers[i + 1];
+
+
+        if(precedessor) {
+            layer.onOutgoingMsg = precedessor.sendOutgoingMsg.bind(precedessor);
+        }
+
+        if(successor) {
+            layer.onIncomingMsg = successor.sendIncomingMsg.bind(successor);
+        }
+
+    });
+
+
+    const last = layers[layers.length - 1];
+
+    return {
+        sendOutgoingMsg: last.sendOutgoingMsg.bind(last)
+    };
 
 };
