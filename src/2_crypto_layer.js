@@ -40,7 +40,7 @@ module.exports = class Crypto {
         const bzn_envelope = new bluzelle_pb.bzn_envelope();
 
         bzn_envelope.setSender(pub_from_priv(this.private_pem));
-        bzn_envelope.setSignature(sign(bin, this.private_pem));
+        bzn_envelope.setSignature(new Uint8Array(sign(bin, this.private_pem)));
         bzn_envelope.setTimestamp(new Date().getTime());
 
         bzn_envelope.setDatabaseMsg(bin);
@@ -56,8 +56,9 @@ module.exports = class Crypto {
 
         // If the connection layer sends an error, skip this layer.
 
-        if(msg instanceof database_pb.database_msg) {
+        if(msg instanceof database_pb.database_response) {
             this.onIncomingMsg(msg);
+            return;
         }
 
 

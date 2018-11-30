@@ -15,7 +15,7 @@
 
 const WebSocket = require('isomorphic-ws');
 const assert = require('assert');
-const bluzelle_pb = require('../proto/bluzlle_pb');
+const bluzelle_pb = require('../proto/bluzelle_pb');
 const database_pb = require('../proto/database_pb');
 
 
@@ -24,9 +24,12 @@ module.exports = class Connection {
     constructor({entry, onIncomingMsg}) {
 
         this.connection = new WebSocket(entry);
+
         this.connection.binaryType = 'arraybuffer';
 
-        this.connection.onmessage = onIncomingMsg;
+        this.onIncomingMsg = onIncomingMsg;
+
+        this.connection.onmessage = msg => this.onIncomingMsg(msg);
 
     }
 
@@ -52,8 +55,7 @@ const connection_closed_error_response = bin => {
 
     const bzn_envelope = bluzelle_pb.bzn_envelope.deserializeBinary(bin);
 
-    assert(bzn_envelope.getPayloadCase() === bzn_envelope.PayloadCase.DATABASE_MSG,
-        "Not sending a database message; can't mutate into database connection error.");
+    assert(bzn_envelope.getPayloadCase() === bluzelle_pb.bzn_envelope.PayloadCase.DATABASE_MSG);
 
 
     const bzn_envelope_payload = bzn_envelope.getDatabaseMsg();
@@ -68,7 +70,7 @@ const connection_closed_error_response = bin => {
     response.setHeader(header);
 
     const error = new database_pb.database_error();
-    error.setError("CONNECTION CLOSED");
+    error.setMessage("CONNECTION NOT OPEN");
 
     response.setError(error);
 

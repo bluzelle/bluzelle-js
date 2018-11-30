@@ -40,7 +40,7 @@ module.exports = class Metadata {
 
         const header = new database_pb.database_header();
 
-        header.setUuid(this.uuid);
+        header.setDbUuid(this.uuid);
 
 
         const nonce = Math.floor(Math.random() * Math.pow(2, 64));
@@ -57,13 +57,13 @@ module.exports = class Metadata {
     }
 
 
-    sendIncomingmsg(msg) {
+    sendIncomingMsg(msg) {
 
-        assert(msg instanceof database_pb.database_msg);
+        assert(msg instanceof database_pb.database_response);
 
         const header = msg.getHeader();
 
-        assert(header.getUuid() === this.uuid);
+        assert(header.getDbUuid() === this.uuid);
 
         const nonce = header.getTransactionId();
 

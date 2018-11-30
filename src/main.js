@@ -16,6 +16,7 @@
 const Connection = require('./1_connection_layer');
 const Crypto = require('./2_crypto_layer');
 const Redirect = require('./3_redirect_layer');
+const Cache = require('./4_cache_layer');
 const Metadata = require('./6_metadata_layer');
 const API = require('./7_api_layer');
 
@@ -29,27 +30,32 @@ module.exports = (entry, private_pem, uuid) => {
 
     const connection = new Connection({
         entry, 
-        onIncomingMsg: crypto.sendIncomingMsg.bind(crypto)
     });
 
     const crypto = new Crypto({
         private_pem,
-        onIncomingMsg: redirect.sendIncomingMsg.bind(metadata),
-        onOutgoingMsg: connection.sendOutgoingMsg.bind(connection)
     });
 
-    const redirect = new Redirect({
-        onIncomingMsg: metadata.sendIncomingMsg.bind(metadata),
-        onOutgoingMsg: crypto.sendOutgoingMsg.bind(connection)
-    });
+    const redirect = new Redirect({});
+
+    const cache = new Cache({});
 
     const metadata = new Metadata({
         uuid,
-        onOutgoingMsg: redirect.sendOutgoingMsg.bind(crypto)
     });
-    
 
-    const api = new API(metadata.sendOutgoingMsg);
+
+    connection.onIncomingMsg = crypto.sendIncomingMsg.bind(crypto);
+    crypto.onIncomingMsg = redirect.sendIncomingMsg.bind(redirect);
+    crypto.onOutgoingMsg = connection.sendOutgoingMsg.bind(connection);
+    redirect.onIncomingMsg = cache.sendIncomingMsg.bind(cache);
+    redirect.onOutgoingMsg = crypto.sendOutgoingMsg.bind(crypto);
+    cache.onIncomingMsg = metadata.sendIncomingMsg.bind(metadata);
+    cache.onOutgoingMsg = redirect.sendOutgoingMsg.bind(redirect);
+    metadata.onOutgoingMsg = cache.sendOutgoingMsg.bind(cache);
+
+
+    api = new API(metadata.sendOutgoingMsg.bind(metadata));
 
 
     return api;

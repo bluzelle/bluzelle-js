@@ -44,6 +44,7 @@ module.exports = class API {
                 if(incoming_msg.hasError()) {
 
                     reject(new Error(incoming_msg.getError().getMessage()));
+                    return true;
 
                 }
 
@@ -51,6 +52,8 @@ module.exports = class API {
                     "A response other than error or ack has been returned from daemon for create.");
 
                 resolve();
+
+                return true;
 
             });
 
