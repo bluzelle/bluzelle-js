@@ -61,4 +61,113 @@ module.exports = class API {
 
     }
 
+
+    update(key, value) {
+
+        return new Promise((resolve, reject) => {
+
+            const msg = new database_pb.database_msg();
+
+            const update = new database_pb.database_update();
+            msg.setUpdate(update);
+
+            update.setKey(key);
+            update.setValue(value);
+
+
+            this.sendOutgoingMsg(msg, incoming_msg => {
+
+                if(incoming_msg.hasError()) {
+
+                    reject(new Error(incoming_msg.getError().getMessage()));
+                    return true;
+
+                }
+
+                assert(incoming_msg.getResponseCase === null,
+                    "A response other than error or ack has been returned from daemon for update.");
+
+                resolve();
+
+                return true;
+
+            });
+
+        });
+
+    }
+
+
+    read(key) {
+
+        return new Promise((resolve, reject) => {
+
+            const msg = new database_pb.database_msg();
+
+            const read = new database_pb.database_read();
+            msg.setRead(read);
+
+            read.setKey(key);
+
+
+            this.sendOutgoingMsg(msg, incoming_msg => {
+
+                if(incoming_msg.hasError()) {
+
+                    reject(new Error(incoming_msg.getError().getMessage()));
+                    return true;
+
+                }
+
+                assert(incoming_msg.hasRead(),
+                    "A response other than error or read has been returned from daemon for read.");
+
+                assert(incoming_msg.getRead().getKey() === key,
+                    "Key in response does not match key in request for read.");
+
+                resolve(incoming_msg.getRead().getValue());
+
+                return true;
+
+            });
+
+        });
+
+    }
+
+
+    delete(key) {
+
+        return new Promise((resolve, reject) => {
+
+            const msg = new database_pb.database_msg();
+
+            const _delete = new database_pb.database_delete();
+            msg.setRead(_delete);
+
+            _delete.setKey(key);
+
+
+            this.sendOutgoingMsg(msg, incoming_msg => {
+
+                if(incoming_msg.hasError()) {
+
+                    reject(new Error(incoming_msg.getError().getMessage()));
+                    return true;
+
+                }
+
+                assert(incoming_msg.getResponseCase === null,
+                    "A response other than error or ack has been returned from daemon for update.");
+
+                resolve();
+
+                return true;
+
+            });
+
+        });
+
+    }
+
 };

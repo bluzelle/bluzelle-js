@@ -27,7 +27,7 @@ module.exports = class Cache {
         this.retries = new Map();
 
         this.MAX_RETRIES = 3;
-        this.RETRY_TIMEOUT = 3;
+        this.RETRY_TIMEOUT = 300;
 
     }
 
@@ -36,7 +36,7 @@ module.exports = class Cache {
 
         assert(msg instanceof database_pb.database_response);
 
-        const nonce = msg.getHeader().getTransactionId();
+        const nonce = msg.getHeader().getNonce();
 
         assert(this.cache.has(nonce));
         assert(this.retries.has(nonce));
@@ -87,7 +87,7 @@ module.exports = class Cache {
 
         assert(msg instanceof database_pb.database_msg);
 
-        const nonce = msg.getHeader().getTransactionId();
+        const nonce = msg.getHeader().getNonce();
 
         this.cache.set(nonce, msg);
 

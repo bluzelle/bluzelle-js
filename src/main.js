@@ -24,8 +24,8 @@ const API = require('./7_api_layer');
 module.exports = (entry, private_pem, uuid) => {
 
     const layers = [
-        new Connection({ entry, }),
-        new Crypto({ private_pem, }),
+        new Connection({ entry, log: true }),
+        new Crypto({ private_pem, }),        
         new Redirect({}),
         new Cache({}),
         new Metadata({ uuid, }),

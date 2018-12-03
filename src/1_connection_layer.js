@@ -21,15 +21,22 @@ const database_pb = require('../proto/database_pb');
 
 module.exports = class Connection {
 
-    constructor({entry, onIncomingMsg}) {
+    constructor({entry, log, onIncomingMsg}) {
 
         this.connection = new WebSocket(entry);
 
         this.connection.binaryType = 'arraybuffer';
 
+        this.log = log;
         this.onIncomingMsg = onIncomingMsg;
 
-        this.connection.onmessage = msg => this.onIncomingMsg(msg);
+
+        this.connection.onmessage = bin => {
+
+            logIncoming(bin);
+            this.onIncomingMsg(bin);
+
+        };
 
     }
 
@@ -37,12 +44,12 @@ module.exports = class Connection {
 
         if(this.connection.readyState === 1) {
 
+            logOutgoing(bin);
             this.connection.send(bin);
 
         } else {
 
-            this.connection.onmessage(
-                connection_closed_error_response(bin));
+            this.onIncomingMsg(connection_closed_error_response(bin));
 
         }
 
@@ -76,5 +83,54 @@ const connection_closed_error_response = bin => {
 
 
     return response;
+
+};
+
+
+const logIncoming = bin => {
+
+    const bzn_envelope = bluzelle_pb.bzn_envelope.deserializeBinary(new Uint8Array(bin));
+
+    assert(bzn_envelope instanceof bluzelle_pb.bzn_envelope);
+
+    assert(bzn_envelope.hasDatabaseResponse());
+
+
+    const database_response = database_pb.database_response.deserializeBinary(bzn_envelope.getDatabaseResponse());
+
+    assert(database_response instanceof database_pb.database_response);
+
+    console.log('Incoming\n', filterUndefined(database_response.toObject()));
+
+};
+
+
+const logOutgoing = bin => {
+
+    const bzn_envelope = bluzelle_pb.bzn_envelope.deserializeBinary(bin);
+
+    assert(bzn_envelope instanceof bluzelle_pb.bzn_envelope);
+
+    assert(bzn_envelope.hasDatabaseMsg());
+
+
+    const database_msg = database_pb.database_msg.deserializeBinary(bzn_envelope.getDatabaseMsg());
+
+    assert(database_msg instanceof database_pb.database_msg);
+
+    console.log('Outgoing\n', filterUndefined(database_msg.toObject()));
+
+};
+
+
+const filterUndefined = obj => {
+
+    const out = {};
+
+    Object.keys(obj).
+        filter(key => obj[key] !== undefined).
+        forEach(key => out[key] = obj[key]);
+
+    return out;
 
 };

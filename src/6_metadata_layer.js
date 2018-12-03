@@ -45,8 +45,7 @@ module.exports = class Metadata {
 
         const nonce = Math.floor(Math.random() * Math.pow(2, 64));
 
-        // transaction id should be renamed to nonce.
-        header.setTransactionId(nonce);
+        header.setNonce(nonce);
 
         msg.setHeader(header);
 
@@ -65,7 +64,7 @@ module.exports = class Metadata {
 
         assert(header.getDbUuid() === this.uuid);
 
-        const nonce = header.getTransactionId();
+        const nonce = header.getNonce();
 
 
         assert(this.nonceMap.has(nonce), 
