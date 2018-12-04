@@ -33,8 +33,8 @@ module.exports = class Connection {
 
         this.connection.onmessage = bin => {
 
-            logIncoming(bin);
-            this.onIncomingMsg(bin);
+            logIncoming(bin.data);
+            this.onIncomingMsg(bin.data);
 
         };
 
@@ -88,6 +88,8 @@ const connection_closed_error_response = bin => {
 
 
 const logIncoming = bin => {
+
+    debugger;
 
     const bzn_envelope = bluzelle_pb.bzn_envelope.deserializeBinary(new Uint8Array(bin));
 

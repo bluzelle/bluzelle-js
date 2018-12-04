@@ -170,4 +170,40 @@ module.exports = class API {
 
     }
 
+
+    // createDB() {
+
+    //     return new Promise((resolve, reject) => {
+
+    //         const msg = new database_pb.database_msg();
+
+    //         const create = new database_pb.database_create();
+    //         msg.setCreate(create);
+
+    //         create.setKey(key);
+    //         create.setValue(value);
+
+
+    //         this.sendOutgoingMsg(msg, incoming_msg => {
+
+    //             if(incoming_msg.hasError()) {
+
+    //                 reject(new Error(incoming_msg.getError().getMessage()));
+    //                 return true;
+
+    //             }
+
+    //             assert(incoming_msg.getResponseCase === null,
+    //                 "A response other than error or ack has been returned from daemon for create.");
+
+    //             resolve();
+
+    //             return true;
+
+    //         });
+
+    //     });
+
+    // }
+
 };
