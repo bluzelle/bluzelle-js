@@ -59,8 +59,7 @@ module.exports = class Crypto {
         if(msg instanceof database_pb.database_response) {
             this.onIncomingMsg(msg);
             return;
-        }
-
+        }   
 
         assert(msg instanceof Buffer);
 
@@ -68,17 +67,17 @@ module.exports = class Crypto {
         // Verification not implemented
 
 
-        const bzn_envelope = bluzelle_pb.bzn_envelope.deserializeBinary(bin);
+        const bzn_envelope = bluzelle_pb.bzn_envelope.deserializeBinary(new Uint8Array(msg));
 
-        assert(bzn_envelope.getPayloadCase() === bzn_envelope.PayloadCase.DATABASE_RESPONSE,
+        assert(bzn_envelope.hasDatabaseResponse(),
             "Daemon sent a non-database_response.");
 
 
         const bzn_envelope_payload = bzn_envelope.getDatabaseResponse();
         
-        const database_msg = database_pb.database_msg.deserializeBinary(bzn_envelope_payload);
+        const database_response = database_pb.database_response.deserializeBinary(bzn_envelope_payload);
         
-        this.onIncomingMsg(database_msg);
+        this.onIncomingMsg(database_response);
 
     }
 

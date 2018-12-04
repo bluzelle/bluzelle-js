@@ -42,7 +42,7 @@ module.exports = class Cache {
         assert(this.retries.has(nonce));
 
 
-        if(msg.hasError() && msg.getError().getMessage() === 'NO CONNECTION' || 'ELECTION IN PROGRESS') {
+        if(msg.hasError() && ['CONNECTION NOT OPEN', 'ELECTION IN PROGRESS'].includes(msg.getError().getMessage())) {
 
 
             // Failure
