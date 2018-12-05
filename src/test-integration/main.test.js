@@ -12,8 +12,6 @@ it('should do a create', async () => {
 
     await bz.createDB();
 
-    await bz.create('hello', 'world');
-
-    assert.equal(await bz.read('hello'), 'world');
+    assert(!await bz.has('hello'));
 
 });

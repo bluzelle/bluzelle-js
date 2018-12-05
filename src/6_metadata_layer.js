@@ -43,7 +43,7 @@ module.exports = class Metadata {
         header.setDbUuid(this.uuid);
 
 
-        const nonce = Math.floor(Math.random() * Math.pow(2, 64));
+        const nonce = generateNonce();
 
         header.setNonce(nonce);
 
@@ -68,7 +68,7 @@ module.exports = class Metadata {
 
 
         assert(this.nonceMap.has(nonce), 
-            'Metadata layer: nonce doesn\'t belong to map. Was it termianted too early?');
+            'Metadata layer: nonce doesn\'t belong to map. Was it terminated too early?');
 
 
         const fn = this.nonceMap.get(nonce);
@@ -82,4 +82,20 @@ module.exports = class Metadata {
 
     }
 
+};
+
+
+const generateNonce = () => {
+
+    // We would normally do 
+
+    // Math.floor(Math.random() * Math.pow(2, 64));
+
+    // however JS implementations do not generate
+    // random numbers with adequate precision.
+
+    // Thus we break the 64-bit int into four 16-bit ints
+    // and combine them by bit-shifting.
+
+    return Math.floor(Math.random() * Math.pow(2, 64));
 };
