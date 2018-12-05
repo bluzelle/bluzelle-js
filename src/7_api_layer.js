@@ -17,6 +17,10 @@ const database_pb = require('../proto/database_pb');
 const assert = require('assert');
 
 
+const encode = string => new Uint8Array(Buffer.from(string, 'utf-8'));
+const decode = binary => Buffer.from(binary).toString('utf-8');
+
+
 module.exports = class API {
 
     constructor(sendOutgoingMsg) {
@@ -36,7 +40,7 @@ module.exports = class API {
             msg.setCreate(create);
 
             create.setKey(key);
-            create.setValue(value);
+            create.setValue(encode(value));
 
 
             this.sendOutgoingMsg(msg, incoming_msg => {
@@ -48,7 +52,7 @@ module.exports = class API {
 
                 }
 
-                assert(incoming_msg.getResponseCase === null,
+                assert(incoming_msg.getResponseCase() === 0,
                     "A response other than error or ack has been returned from daemon for create.");
 
                 resolve();
@@ -72,7 +76,7 @@ module.exports = class API {
             msg.setUpdate(update);
 
             update.setKey(key);
-            update.setValue(value);
+            update.setValue(encode(value));
 
 
             this.sendOutgoingMsg(msg, incoming_msg => {
@@ -84,7 +88,7 @@ module.exports = class API {
 
                 }
 
-                assert(incoming_msg.getResponseCase === null,
+                assert(incoming_msg.getResponseCase() === 0,
                     "A response other than error or ack has been returned from daemon for update.");
 
                 resolve();
@@ -125,7 +129,7 @@ module.exports = class API {
                 assert(incoming_msg.getRead().getKey() === key,
                     "Key in response does not match key in request for read.");
 
-                resolve(incoming_msg.getRead().getValue());
+                resolve(decode(incoming_msg.getRead().getValue()));
 
                 return true;
 
@@ -157,7 +161,7 @@ module.exports = class API {
 
                 }
 
-                assert(incoming_msg.getResponseCase === null,
+                assert(incoming_msg.getResponseCase() === 0,
                     "A response other than error or ack has been returned from daemon for update.");
 
                 resolve();
@@ -171,39 +175,178 @@ module.exports = class API {
     }
 
 
-    // createDB() {
+    has(key) {
 
-    //     return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
 
-    //         const msg = new database_pb.database_msg();
+            const msg = new database_pb.database_msg();
 
-    //         const create = new database_pb.database_create();
-    //         msg.setCreate(create);
+            const has = new database_pb.database_has();
+            msg.setHas(has);
 
-    //         create.setKey(key);
-    //         create.setValue(value);
+            has.setKey(key);
 
 
-    //         this.sendOutgoingMsg(msg, incoming_msg => {
+            this.sendOutgoingMsg(msg, incoming_msg => {
 
-    //             if(incoming_msg.hasError()) {
+                if(incoming_msg.hasError()) {
 
-    //                 reject(new Error(incoming_msg.getError().getMessage()));
-    //                 return true;
+                    reject(new Error(incoming_msg.getError().getMessage()));
+                    return true;
 
-    //             }
+                }
 
-    //             assert(incoming_msg.getResponseCase === null,
-    //                 "A response other than error or ack has been returned from daemon for create.");
+                assert(incoming_msg.hasHas(),
+                    "A response other than error or has has been returned from daemon for has.");
 
-    //             resolve();
+                assert(incoming_msg.getHas().getKey() === key,
+                    "Key in response does not match key in request for has.");
 
-    //             return true;
+                resolve(incoming_msg.getHas().getHas());
 
-    //         });
+                return true;
 
-    //     });
+            });
 
-    // }
+        });
+
+    }
+
+
+    keys() {
+
+        return new Promise((resolve, reject) => {
+
+            const msg = new database_pb.database_msg();
+
+            const keys = new database_pb.database_request();
+            msg.setKeys(keys);
+
+
+            this.sendOutgoingMsg(msg, incoming_msg => {
+
+                if(incoming_msg.hasError()) {
+
+                    reject(new Error(incoming_msg.getError().getMessage()));
+                    return true;
+
+                }
+
+                assert(incoming_msg.hasKeys(),
+                    "A response other than error or keys has been returned from daemon for keys.");
+
+                resolve(incoming_msg.getKeys().getKeysList());
+
+                return true;
+
+            });
+
+        });
+
+    }
+
+
+    createDB() {
+
+        return new Promise((resolve, reject) => {
+
+            const msg = new database_pb.database_msg();
+
+            const create = new database_pb.database_request();
+            msg.setCreateDb(create);
+
+
+            this.sendOutgoingMsg(msg, incoming_msg => {
+
+                if(incoming_msg.hasError()) {
+
+                    reject(new Error(incoming_msg.getError().getMessage()));
+                    return true;
+
+                }
+
+                debugger;
+
+                assert(incoming_msg.getResponseCase() === 0,
+                    "A response other than error or ack has been returned from daemon for createDB.");
+
+                resolve();
+
+                return true;
+
+            });
+
+        });
+
+    }
+
+
+    deleteDB() {
+
+        return new Promise((resolve, reject) => {
+
+            const msg = new database_pb.database_msg();
+
+            const _delete = new database_pb.database_request();
+            msg.setDeleteDb(_delete);
+
+
+            this.sendOutgoingMsg(msg, incoming_msg => {
+
+                if(incoming_msg.hasError()) {
+
+                    reject(new Error(incoming_msg.getError().getMessage()));
+                    return true;
+
+                }
+
+                assert(incoming_msg.getResponseCase() === 0,
+                    "A response other than error or ack has been returned from daemon for createDB.");
+
+                resolve();
+
+                return true;
+
+            });
+
+        });
+
+    }
+
+
+    hasDB() {
+
+        return new Promise((resolve, reject) => {
+
+            const msg = new database_pb.database_msg();
+
+            const has = new database_pb.database_had_db();
+            msg.setHasDb(has);
+
+
+            this.sendOutgoingMsg(msg, incoming_msg => {
+
+                if(incoming_msg.hasError()) {
+
+                    reject(new Error(incoming_msg.getError().getMessage()));
+                    return true;
+
+                }
+
+                assert(incoming_msg.hasHasDb(),
+                    "A response other than error or ack has been returned from daemon for createDB.");
+
+                const resp = incoming_msg.getHasDb();
+
+                resolve(resp.getHas());
+
+                return true;
+
+            });
+
+        });
+
+    }
+
 
 };
