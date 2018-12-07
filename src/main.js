@@ -21,10 +21,10 @@ const Metadata = require('./6_metadata_layer');
 const API = require('./7_api_layer');
 
 
-module.exports = ({entry, private_pem, uuid}) => {
+module.exports = ({entry, private_pem, uuid, log}) => {
 
     const layers = [
-        new Connection({ entry, log: true }),
+        new Connection({ entry, log }),
         new Crypto({ private_pem, }),        
         new Redirect({}),
         new Cache({}),
