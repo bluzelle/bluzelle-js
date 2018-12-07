@@ -1,10 +1,10 @@
-const bluzelle = require('../main');
+const {bluzelle} = require('../main');
 const assert = require('assert');
 
 
 describe('integration', () => {
 
-    it('can create and read', async () => {
+    it('create and read', async () => {
 
         const bz = bluzelle({
             entry: 'ws://localhost:50000', 
@@ -20,7 +20,7 @@ describe('integration', () => {
 
     });
 
-    it('can update', async () => {
+    it('update', async () => {
 
         const bz = bluzelle({
             entry: 'ws://localhost:50000', 
@@ -40,7 +40,7 @@ describe('integration', () => {
     });
 
 
-    it('has key', async () => {
+    it('has', async () => {
 
         const bz = bluzelle({
             entry: 'ws://localhost:50000', 
@@ -59,7 +59,7 @@ describe('integration', () => {
     });
 
 
-    it('can delete', async () => {
+    it('delete', async () => {
 
         const bz = bluzelle({
             entry: 'ws://localhost:50000', 
@@ -78,7 +78,7 @@ describe('integration', () => {
     });
 
 
-    it('can get size', async () => {
+    it('size', async () => {
 
         const bz = bluzelle({
             entry: 'ws://localhost:50000', 
@@ -97,7 +97,7 @@ describe('integration', () => {
     });
 
 
-    it('can get keys', async () => {    
+    it('keys', async () => {    
 
         const bz = bluzelle({
             entry: 'ws://localhost:50000', 
