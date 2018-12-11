@@ -91,11 +91,15 @@ const generateNonce = () => {
 
     // Math.floor(Math.random() * Math.pow(2, 64));
 
-    // however JS implementations do not generate
-    // random numbers with adequate precision.
+    // however JS integers are capped at 2^54
 
-    // Thus we break the 64-bit int into four 16-bit ints
-    // and combine them by bit-shifting.
+    // So we need to generate a string of the decimal int going up to 2^64-1.
 
-    return Math.floor(Math.random() * Math.pow(2, 64));
+
+    const high_32 = Math.floor(Math.random() * Math.pow(2, 32));
+
+    const low_32 = Math.floor(Math.random() * Math.pow(2, 32));
+
+    return ((BigInt(high_32) << BigInt(32)) + BigInt(low_32)) + '';
+
 };
