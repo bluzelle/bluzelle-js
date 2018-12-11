@@ -53,9 +53,7 @@ const pub_from_priv = priv_key_base64 => {
 
     const ec_key = import_private_key_from_base64(priv_key_base64);
 
-    const pub = ec_key.getPublic(true, 'base64');
-
-
+    const pub = ec_key.getPublic(false, 'base64');
 
     return "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE" + 
         Buffer.from(pub).toString('base64');
