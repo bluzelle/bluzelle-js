@@ -14,6 +14,7 @@
 
 
 const database_pb = require('../proto/database_pb');
+const bigInt = require('big-integer');
 const assert = require('assert');
 
 
@@ -95,11 +96,13 @@ const generateNonce = () => {
 
     // So we need to generate a string of the decimal int going up to 2^64-1.
 
+    
+
 
     const high_32 = Math.floor(Math.random() * Math.pow(2, 32));
 
     const low_32 = Math.floor(Math.random() * Math.pow(2, 32));
 
-    return ((BigInt(high_32) << BigInt(32)) + BigInt(low_32)) + '';
+    return bigInt(high_32).shiftLeft(32).plus(low_32).toString();
 
 };
