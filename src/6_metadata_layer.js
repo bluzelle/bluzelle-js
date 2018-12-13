@@ -96,9 +96,6 @@ const generateNonce = () => {
 
     // So we need to generate a string of the decimal int going up to 2^64-1.
 
-    
-
-
     const high_32 = Math.floor(Math.random() * Math.pow(2, 32));
 
     const low_32 = Math.floor(Math.random() * Math.pow(2, 32));

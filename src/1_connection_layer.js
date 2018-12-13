@@ -41,7 +41,7 @@ module.exports = class Connection {
     }
 
     sendOutgoingMsg(bin) {
-
+        
         if(this.connection.readyState === 1) {
 
             this.log && logOutgoing(bin);

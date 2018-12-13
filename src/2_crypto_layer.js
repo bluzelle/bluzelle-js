@@ -35,15 +35,30 @@ module.exports = class Crypto {
         assert(msg instanceof database_pb.database_msg);
 
 
-        const bin = msg.serializeBinary();
+        const empty_msg = new database_pb.database_msg();
+
+        // msg
+        const payload = empty_msg.serializeBinary();
 
         const bzn_envelope = new bluzelle_pb.bzn_envelope();
 
-        bzn_envelope.setSender(pub_from_priv(this.private_pem));
-        bzn_envelope.setSignature(new Uint8Array(sign(bin, this.private_pem)));
-        bzn_envelope.setTimestamp(new Date().getTime());
 
-        bzn_envelope.setDatabaseMsg(bin);
+        const timestamp = 0; // new Date().getTime();
+        const sender = pub_from_priv(this.private_pem);
+        
+
+        const bin_for_the_win = deterministic_serialize([
+            sender, 
+            bluzelle_pb.bzn_envelope.PayloadCase.DATABASE_MSG, 
+            Buffer.from(payload).toString('ascii'), 
+            timestamp
+        ]);
+
+        bzn_envelope.setSender(sender);
+        bzn_envelope.setSignature(new Uint8Array(sign(Buffer.from(bin_for_the_win, 'ascii'), this.private_pem)));
+        bzn_envelope.setTimestamp(timestamp);
+
+        bzn_envelope.setDatabaseMsg(payload);
 
         const ultimate_bin = bzn_envelope.serializeBinary();
 
@@ -81,4 +96,17 @@ module.exports = class Crypto {
 
     }
 
+};
+
+
+const deterministic_serialize = (vec) => {
+    // sender, payload_case, payload, timestamp
+
+    let s = '';
+
+    for(i in vec) {
+        s += vec[i].toString().length + '|' + vec[i].toString();
+    }
+
+    return s;
 };
