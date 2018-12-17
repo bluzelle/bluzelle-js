@@ -17,6 +17,7 @@ const WebSocket = require('isomorphic-ws');
 const assert = require('assert');
 const bluzelle_pb = require('../proto/bluzelle_pb');
 const database_pb = require('../proto/database_pb');
+const status_pb = require('../proto/status_pb');
 
 
 module.exports = class Connection {
@@ -33,8 +34,37 @@ module.exports = class Connection {
 
         this.connection.onmessage = bin => {
 
-            this.log && logIncoming(Buffer.from(bin.data));
-            this.onIncomingMsg(Buffer.from(bin.data));
+            const actual_bin = Buffer.from(bin.data);
+
+            this.log && logIncoming(actual_bin);
+
+            this.onIncomingMsg(actual_bin);
+                
+
+
+            // // If it's a database response, then go deserialize it and go through the whole layer system.
+            // const bzn_envelope = bluzelle_pb.bzn_envelope.deserializeBinary(new Uint8Array(actual_bin));
+
+            // assert(bzn_envelope.hasDatabaseResponse() || bzn_envelope.hasStatusRequest(),
+            //     "Daemon sent a non-database_response and non-status_request.");
+            
+            // if(bzn_envelope.hasDatabaseResponse()) {
+
+            //     this.log && logIncoming(actual_bin);
+
+
+            //     this.onIncomingMsg(
+            //         database_pb.database_response.deserializeBinary(bzn_envelope.getDatabaseResponse()));
+                
+
+            // // Something completely different for status messages. They have to bypass the whole layered system.
+            // } else {
+
+            //     this.onIncomingStatusRequest(
+            //         status_pb.status_response.deserializeBinary(bzn_envelope.getStatusRequest()));
+
+            // }
+
 
         };
 

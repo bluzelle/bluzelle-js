@@ -20,6 +20,9 @@ const Cache = require('./4_cache_layer');
 const Metadata = require('./6_metadata_layer');
 const API = require('./7_api_layer');
 
+const bluzelle_pb = require('../proto/bluzelle_pb');
+const status_pb = require('../proto/status_pb');
+
 
 module.exports = {
     bluzelle: ({entry, private_pem, uuid, log}) => {
