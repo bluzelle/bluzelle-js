@@ -32,15 +32,10 @@ module.exports = class Crypto {
 
     sendOutgoingMsg(msg) {
 
-        assert(msg instanceof database_pb.database_msg);
+        assert(msg instanceof bluzelle_pb.bzn_envelope);
+        assert(msg.hasDatabaseMsg() || msg.hasStatusRequest());
 
-
-        const empty_msg = new database_pb.database_msg();
-
-        // msg
-        const payload = msg.serializeBinary();
-
-        const bzn_envelope = new bluzelle_pb.bzn_envelope();
+        const payload = msg.hasDatabaseMsg() ? msg.getDatabaseMsg() : msg.getStatusRequest();
 
 
         const timestamp = new Date().getTime();
@@ -55,13 +50,11 @@ module.exports = class Crypto {
         ].map(deterministic_serialize));
 
 
-        bzn_envelope.setSender(sender);
-        bzn_envelope.setSignature(new Uint8Array(sign(bin_for_the_win, this.private_pem)));
-        bzn_envelope.setTimestamp(timestamp);
+        msg.setSender(sender);
+        msg.setSignature(new Uint8Array(sign(bin_for_the_win, this.private_pem)));
+        msg.setTimestamp(timestamp);
 
-        bzn_envelope.setDatabaseMsg(payload);
-
-        const ultimate_bin = bzn_envelope.serializeBinary();
+        const ultimate_bin = msg.serializeBinary();
 
         this.onOutgoingMsg(ultimate_bin);
 
@@ -85,15 +78,9 @@ module.exports = class Crypto {
 
         const bzn_envelope = bluzelle_pb.bzn_envelope.deserializeBinary(new Uint8Array(msg));
 
-        assert(bzn_envelope.hasDatabaseResponse(),
-            "Daemon sent a non-database_response.");
+        assert(bzn_envelope.hasDatabaseResponse() || bzn_envelope.hasStatusRequest());
 
-
-        const bzn_envelope_payload = bzn_envelope.getDatabaseResponse();
-        
-        const database_response = database_pb.database_response.deserializeBinary(bzn_envelope_payload);
-        
-        this.onIncomingMsg(database_response);
+        this.onIncomingMsg(bzn_envelope);
 
     }
 
