@@ -27,6 +27,12 @@ const status_pb = require('../proto/status_pb');
 module.exports = {
     bluzelle: ({entry, private_pem, uuid, log}) => {
 
+        // Default log is console.log, but you can pass any other function.
+        if(log && typeof log !== 'function') {
+            log = console.log.bind(console);
+        }
+
+
         const layers = [
             new Connection({ entry, log }),
             new Crypto({ private_pem, }),        

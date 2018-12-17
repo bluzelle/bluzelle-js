@@ -36,35 +36,9 @@ module.exports = class Connection {
 
             const actual_bin = Buffer.from(bin.data);
 
-            this.log && logIncoming(actual_bin);
+            this.log && logIncoming(actual_bin, this.log);
 
             this.onIncomingMsg(actual_bin);
-                
-
-
-            // // If it's a database response, then go deserialize it and go through the whole layer system.
-            // const bzn_envelope = bluzelle_pb.bzn_envelope.deserializeBinary(new Uint8Array(actual_bin));
-
-            // assert(bzn_envelope.hasDatabaseResponse() || bzn_envelope.hasStatusRequest(),
-            //     "Daemon sent a non-database_response and non-status_request.");
-            
-            // if(bzn_envelope.hasDatabaseResponse()) {
-
-            //     this.log && logIncoming(actual_bin);
-
-
-            //     this.onIncomingMsg(
-            //         database_pb.database_response.deserializeBinary(bzn_envelope.getDatabaseResponse()));
-                
-
-            // // Something completely different for status messages. They have to bypass the whole layered system.
-            // } else {
-
-            //     this.onIncomingStatusRequest(
-            //         status_pb.status_response.deserializeBinary(bzn_envelope.getStatusRequest()));
-
-            // }
-
 
         };
 
@@ -74,7 +48,7 @@ module.exports = class Connection {
         
         if(this.connection.readyState === 1) {
 
-            this.log && logOutgoing(bin);
+            this.log && logOutgoing(bin, this.log);
             this.connection.send(bin);
 
         } else {
@@ -117,7 +91,7 @@ const connection_closed_error_response = bin => {
 };
 
 
-const logIncoming = bin => {
+const logIncoming = (bin, log) => {
 
     const bzn_envelope = bluzelle_pb.bzn_envelope.deserializeBinary(new Uint8Array(bin));
 
@@ -130,12 +104,15 @@ const logIncoming = bin => {
 
     assert(database_response instanceof database_pb.database_response);
 
-    console.log('Incoming\n', filterUndefined(database_response.toObject()));
+    // Make sure errors don't mess up this thread
+    setTimeout(() => 
+        log('Incoming\n', filterUndefined(database_response.toObject())),
+        0);
 
 };
 
 
-const logOutgoing = bin => {
+const logOutgoing = (bin, log) => {
 
     const bzn_envelope = bluzelle_pb.bzn_envelope.deserializeBinary(bin);
 
@@ -148,10 +125,16 @@ const logOutgoing = bin => {
 
     assert(database_msg instanceof database_pb.database_msg);
 
-    console.log('Outgoing\n', filterUndefined(database_msg.toObject()));
+
+    setTimeout(() => 
+        log('Outgoing\n', filterUndefined(database_msg.toObject())),
+        0);
 
 };
 
+
+// Removes keys that map to undefined in an object,
+// otherwise they show up in log output
 
 const filterUndefined = obj => {
 
