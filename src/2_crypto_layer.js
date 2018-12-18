@@ -44,7 +44,7 @@ module.exports = class Crypto {
         
         const bin_for_the_win = Buffer.concat([
             sender, 
-            bluzelle_pb.bzn_envelope.PayloadCase.DATABASE_MSG, 
+            msg.getPayloadCase(), 
             Buffer.from(payload), 
             timestamp
         ].map(deterministic_serialize));
