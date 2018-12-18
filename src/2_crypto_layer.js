@@ -41,7 +41,7 @@ module.exports = class Crypto {
         const timestamp = new Date().getTime();
         const sender = pub_from_priv(this.private_pem);
         
-
+        
         const bin_for_the_win = Buffer.concat([
             sender, 
             bluzelle_pb.bzn_envelope.PayloadCase.DATABASE_MSG, 
@@ -78,7 +78,7 @@ module.exports = class Crypto {
 
         const bzn_envelope = bluzelle_pb.bzn_envelope.deserializeBinary(new Uint8Array(msg));
 
-        assert(bzn_envelope.hasDatabaseResponse() || bzn_envelope.hasStatusRequest());
+        assert(bzn_envelope.hasDatabaseResponse() || bzn_envelope.hasStatusResponse());
 
         this.onIncomingMsg(bzn_envelope);
 

@@ -102,7 +102,7 @@ const logIncoming = (bin, log) => {
 
     assert(bzn_envelope instanceof bluzelle_pb.bzn_envelope);
 
-    assert(bzn_envelope.hasDatabaseResponse() || bzn_envelope.hasStatusRequest());
+    assert(bzn_envelope.hasDatabaseResponse() || bzn_envelope.hasStatusResponse());
 
 
     if(bzn_envelope.hasDatabaseResponse()) {
@@ -118,9 +118,9 @@ const logIncoming = (bin, log) => {
 
     }
 
-    if(bzn_envelope.hasStatusRequest()) {
+    if(bzn_envelope.hasStatusResponse()) {
 
-        const status_response = status_pb.status_response.deserializeBinary(bzn_envelope.getStatusRequest());
+        const status_response = status_pb.status_response.deserializeBinary(bzn_envelope.getStatusResponse());
 
         assert(status_response instanceof status_pb.status_response);
 

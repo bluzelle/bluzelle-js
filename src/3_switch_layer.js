@@ -65,7 +65,7 @@ module.exports = class Switch {
 
         assert(msg instanceof bluzelle_pb.bzn_envelope);
 
-        assert(msg.hasDatabaseResponse() || msg.hasStatusRequest());
+        assert(msg.hasDatabaseResponse() || msg.hasStatusResponse());
 
 
         if(msg.hasDatabaseResponse()) {
@@ -75,9 +75,9 @@ module.exports = class Switch {
             this.onIncomingMsg(db_resp);
         }
 
-        if(msg.hasStatusRequest()) {
+        if(msg.hasStatusResponse()) {
 
-            const status_resp = status_pb.status_response.deserializeBinary(new Uint8Array(msg.getStatusRequest()));
+            const status_resp = status_pb.status_response.deserializeBinary(new Uint8Array(msg.getStatusResponse()));
 
             this.onIncomingStatusResponse(status_resp);
         }

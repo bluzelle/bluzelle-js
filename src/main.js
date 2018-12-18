@@ -49,6 +49,8 @@ module.exports = {
 
 
 
+        // Status is special because it bypasses all the normal API stuff
+
         api.status = () => new Promise((resolve, reject) => {
 
             const switch_layer = layers[2];
@@ -57,7 +59,8 @@ module.exports = {
 
             switch_layer.sendOutgoingMsg(status_request);
 
-            switch_later.onIncomingStatusResponse = status_response => {
+
+            switch_layer.onIncomingStatusResponse = status_response => {
 
                 resolve(status_response.toObject());
 
