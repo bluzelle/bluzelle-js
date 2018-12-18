@@ -21,6 +21,8 @@ const Cache = require('./5_cache_layer');
 const Metadata = require('./7_metadata_layer');
 const API = require('./8_api_layer');
 
+const { pub_from_priv } = require('./ecdsa_secp256k1');
+
 const bluzelle_pb = require('../proto/bluzelle_pb');
 const status_pb = require('../proto/status_pb');
 
@@ -67,6 +69,11 @@ module.exports = {
             };
 
         });
+
+
+        // This one is also special
+
+        api.publicKey = () => pub_from_priv(private_pem);
 
 
         return api;
