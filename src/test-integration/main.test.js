@@ -213,8 +213,6 @@ describe('integration', () => {
             uuid: Math.random().toString()
         });
 
-        await new Promise(resolve => setTimeout(() => resolve(), 100));
-
         const status = await bz.status();
 
         assert(status.swarmGitCommit);
@@ -245,9 +243,6 @@ describe('integration', () => {
             private_pem: 'MHQCAQEEIFH0TCvEu585ygDovjHE9SxW5KztFhbm4iCVOC67h0tEoAcGBSuBBAAKoUQDQgAE9Icrml+X41VC6HTX21HulbJo+pV1mtWn4+evJAi8ZeeLEJp4xg++JHoDm8rQbGWfVM84eqnb/RVuIXqoz6F9Bg==', 
             uuid: Math.random().toString()
         });
-
-
-        await new Promise(resolve => setTimeout(() => resolve(), 100));
 
         await bz.useFastestConnection();
 

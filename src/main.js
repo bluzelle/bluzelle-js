@@ -17,9 +17,8 @@ const Connection = require('./1_connection_layer');
 const Crypto = require('./2_crypto_layer');
 const Switch = require('./3_switch_layer');
 const Redirect = require('./4_redirect_layer');
-const Cache = require('./5_cache_layer');
-const Metadata = require('./7_metadata_layer');
-const API = require('./8_api_layer');
+const Metadata = require('./5_metadata_layer');
+const API = require('./6_api_layer');
 
 const { pub_from_priv } = require('./ecdsa_secp256k1');
 
@@ -41,7 +40,6 @@ module.exports = {
             new Crypto({ private_pem, }),  
             new Switch({ onIncomingStatusResponse: () => {} }),      
             new Redirect({}),
-            new Cache({}),
             new Metadata({ uuid, }),
         ];
 
@@ -90,7 +88,7 @@ module.exports = {
 
             const ps = connections.map(connection => 
                 new Promise(resolve => {
-                    connection.socket.onopen = () => resolve(connection)
+                    connection.socket.addEventListener('open', () => resolve(connection))
                 })
             );
 
@@ -103,12 +101,14 @@ module.exports = {
                 connection.readyState === 1 ? 
 
                     connection.close() : // In case two connections open very closely to one-another
-                    
+
                     connection.socket.onopen = () => connection.socket.close());
 
 
             // Replace existing connection with best connection
 
+            layers[0].socket.close();
+            
             layers[0] = best_connection;
             connect_layers(layers);
 

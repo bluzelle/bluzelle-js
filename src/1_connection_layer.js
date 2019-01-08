@@ -32,7 +32,11 @@ module.exports = class Connection {
         this.onIncomingMsg = onIncomingMsg;
 
 
-        this.socket.onmessage = bin => {
+        // queue up messages and send them when the connection opens
+        this.queue = [];
+
+
+        this.socket.addEventListener('message', bin => {
 
             const actual_bin = Buffer.from(bin.data);
 
@@ -40,7 +44,11 @@ module.exports = class Connection {
 
             this.onIncomingMsg(actual_bin);
 
-        };
+        });
+
+        this.socket.addEventListener('open', () => 
+            this.queue.forEach(bin => this.sendOutgoingMsg(bin))
+        );
 
     }
 
@@ -53,14 +61,7 @@ module.exports = class Connection {
 
         } else {
 
-            // Send an error response, but not for status requests
-            const bzn_envelope = bluzelle_pb.bzn_envelope.deserializeBinary(bin);
-
-            if(bzn_envelope.hasDatabaseMsg()) {
-
-                this.onIncomingMsg(connection_closed_error_response(bin));
-
-            }
+            this.queue.push(bin);
 
         }
 
@@ -72,32 +73,6 @@ module.exports = class Connection {
 
 };
 
-
-const connection_closed_error_response = bin => {
-
-    const bzn_envelope = bluzelle_pb.bzn_envelope.deserializeBinary(bin);
-
-
-    const bzn_envelope_payload = bzn_envelope.getDatabaseMsg();
-
-    const database_msg = database_pb.database_msg.deserializeBinary(bzn_envelope_payload);
-
-    const header = database_msg.getHeader();
-
-
-    const response = new database_pb.database_response();
-
-    response.setHeader(header);
-
-    const error = new database_pb.database_error();
-    error.setMessage("CONNECTION NOT OPEN");
-
-    response.setError(error);
-
-
-    return response;
-
-};
 
 
 const logIncoming = (bin, log) => {
