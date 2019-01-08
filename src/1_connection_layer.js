@@ -24,15 +24,15 @@ module.exports = class Connection {
 
     constructor({entry, log, onIncomingMsg}) {
 
-        this.connection = new WebSocket(entry);
+        this.socket = new WebSocket(entry);
 
-        this.connection.binaryType = 'arraybuffer';
+        this.socket.binaryType = 'arraybuffer';
 
         this.log = log;
         this.onIncomingMsg = onIncomingMsg;
 
 
-        this.connection.onmessage = bin => {
+        this.socket.onmessage = bin => {
 
             const actual_bin = Buffer.from(bin.data);
 
@@ -46,10 +46,10 @@ module.exports = class Connection {
 
     sendOutgoingMsg(bin) {
 
-        if(this.connection.readyState === 1) {
+        if(this.socket.readyState === 1) {
 
             this.log && logOutgoing(bin, this.log);
-            this.connection.send(bin);
+            this.socket.send(bin);
 
         } else {
 
@@ -67,7 +67,7 @@ module.exports = class Connection {
     }
 
     close() {
-        this.connection.close();
+        this.socket.close();
     }
 
 };

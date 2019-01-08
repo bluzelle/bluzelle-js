@@ -77,6 +77,44 @@ module.exports = {
         api.close = () => layers[0].close();
 
 
+        api.useFastestConnection = async () => {
+
+            const stat = await api.status();
+
+            const peer_index = JSON.parse(stat.moduleStatusJson).module[0].status.peer_index;
+
+
+            const entries = peer_index.map(({host, port}) => 'ws://' + host + ':' + port);
+
+            const connections = entries.map(entry => new Connection({entry, log}));
+
+            const ps = connections.map(connection => 
+                new Promise(resolve => {
+                    connection.socket.onopen = () => resolve(connection)
+                })
+            );
+
+            const best_connection = await Promise.race(ps);
+
+
+            // Close out all other connections
+
+            connections.filter(c => c !== best_connection).forEach(connection => 
+                connection.readyState === 1 ? 
+
+                    connection.close() : // In case two connections open very closely to one-another
+                    
+                    connection.socket.onopen = () => connection.socket.close());
+
+
+            // Replace existing connection with best connection
+
+            layers[0] = best_connection;
+            connect_layers(layers);
+
+        };
+
+
         return api;
 
     },
