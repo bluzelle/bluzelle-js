@@ -139,7 +139,6 @@ module.exports = class API {
 
     }
 
-
     quickread(key) {
 
         return new Promise((resolve, reject) => {
@@ -176,7 +175,6 @@ module.exports = class API {
         });
 
     }
-
 
     delete(key) {
 
