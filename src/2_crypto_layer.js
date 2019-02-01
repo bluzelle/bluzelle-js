@@ -54,7 +54,13 @@ module.exports = class Crypto {
         msg.setSignature(new Uint8Array(sign(bin_for_the_win, this.private_pem)));
         msg.setTimestamp(timestamp);
 
+
         const ultimate_bin = msg.serializeBinary();
+
+
+        console.log(timestamp, ":");
+        console.log('\t', 'bin (hex): ', Buffer.from(ultimate_bin).toString('hex'));
+
 
         this.onOutgoingMsg(ultimate_bin);
 
