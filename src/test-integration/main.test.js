@@ -13,17 +13,20 @@ describe('integration', () => {
     });
 
 
-    it('create and read', async () => {
+    it.only('create and read', async () => {
 
         const bz = bluzelle({
             entry: 'ws://localhost:50000', 
             private_pem: 'MHQCAQEEIFH0TCvEu585ygDovjHE9SxW5KztFhbm4iCVOC67h0tEoAcGBSuBBAAKoUQDQgAE9Icrml+X41VC6HTX21HulbJo+pV1mtWn4+evJAi8ZeeLEJp4xg++JHoDm8rQbGWfVM84eqnb/RVuIXqoz6F9Bg==', 
-            uuid: Math.random().toString()
+            uuid: Math.random().toString(),
+            log: true,
         });
 
         await bz.createDB();
 
-        await bz.create('hello', 'world');
+        // await bz.create('hello', 'world');
+
+        await new Promise(resolve => setTimeout(() => resolve(), 10000));
 
         assert.equal(await bz.read('hello'), 'world');
 
@@ -233,22 +236,6 @@ describe('integration', () => {
 
 
         assert.equal(bz.publicKey(), "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEY6L6fb2Xd9KZi05LQlZ83+0pIrjOIFvy0azEA+cDf7L7hMgRXrXj5+u6ys3ZSp2Wj58hTXsiiEPrRMMO1pwjRg==");
-
-    });
-
-
-
-    it.only('fastest connection', async () => {
-
-        const bz = bluzelle({
-            entry: 'ws://localhost:50000', 
-            private_pem: 'MHQCAQEEIFH0TCvEu585ygDovjHE9SxW5KztFhbm4iCVOC67h0tEoAcGBSuBBAAKoUQDQgAE9Icrml+X41VC6HTX21HulbJo+pV1mtWn4+evJAi8ZeeLEJp4xg++JHoDm8rQbGWfVM84eqnb/RVuIXqoz6F9Bg==', 
-            uuid: Math.random().toString()
-        });
-
-        assert(typeof await bz.useFastestConnection() === 'object');
-
-        assert(await bz.status());
 
     });
 
