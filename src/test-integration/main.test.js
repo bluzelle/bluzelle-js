@@ -238,7 +238,7 @@ describe('integration', () => {
 
 
 
-    it.only('fastest connection', async () => {
+    it('fastest connection', async () => {
 
         const bz = bluzelle({
             entry: 'ws://localhost:50000', 

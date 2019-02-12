@@ -41,8 +41,9 @@ const sign = (msg_bin, priv_key_base64) => {
     const sig_bin = ec_key.sign(msg_hash).toDER();
 
 
-    assert(ec_key.verify(msg_hash, sig_bin),
+    assert(verify(msg_bin, sig_bin, pub_from_priv(priv_key_base64)),
         "ECDSA: the produced signature cannot be self-verified.");
+
 
     return sig_bin;
 
