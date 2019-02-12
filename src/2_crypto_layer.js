@@ -102,12 +102,7 @@ module.exports = class Crypto {
             'Signature failed to verify.');
         
 
-        const msg = bzn_envelope.hasDatabaseResponse() ?
-             database_pb.database_response.deserializeBinary(new Uint8Array(bzn_envelope.getDatabaseResponse()))
-             :
-             status_pb.status_response.deserializeBinary(new Uint8Array(bzn_envelope.getStatusResponse()));
-
-        this.onIncomingMsg(msg);
+        this.onIncomingMsg(bzn_envelope);
 
     }
 

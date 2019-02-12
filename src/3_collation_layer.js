@@ -28,13 +28,13 @@ module.exports = class Collation {
         this.onOutgoingMsg = onOutgoingMsg;
 
 
-        // Queue messages when we don't have the node uuid in socket_info
+        // Queue messages when we don't have the node uuid in socket_info.
         this.outgoingQueue = [];
 
-        // Queue messages that are awaiting signatures
-        this.incomingQueue = [];
 
-        // Maps messages to the number of signatures they have accumulated
+        // Maps nonces to the number of signatures they have accumulated.
+        // A field in this map means an outgoing message is awaiting a reply.
+        // For each nonce we have a payload map going to a signature set.
         this.nonceMap = new Map();
 
 
@@ -74,7 +74,18 @@ module.exports = class Collation {
         } else {
 
             const node_uuid = this.connection_layer.socket_info.get().uuid;
+
+            assert(node_uuid);
+            
             msg.getHeader().setPointOfContact(node_uuid);
+
+
+            const nonce = msg.getHeader().getNonce();
+            assert(!this.nonceMap.has(nonce),
+                "Sending duplicate nonce. " + nonce);
+
+            this.nonceMap.set(nonce, new Map());
+
 
             this.onOutgoingMsg(msg);
 
@@ -83,29 +94,66 @@ module.exports = class Collation {
     }
 
 
-    sendIncomingMsg(msg) {
+    sendIncomingMsg(bzn_envelope) {
 
-        assert(msg instanceof database_pb.database_response || msg instanceof status_pb.status_response);
+        assert(bzn_envelope instanceof bluzelle_pb.bzn_envelope);
 
-        if(msg instanceof status_pb.status_response) {
+        if(bzn_envelope.hasStatusResponse()) {
 
+            const status_response = status_pb.status_response.deserializeBinary(new Uint8Array(bzn_envelope.getStatusResponse()));
 
             // Collation logic: update number of required signatures
             // f = floor( |peers list] / 3 ) + 1
 
-            const num_peers = JSON.parse(msg.toObject().moduleStatusJson).module[0].status.peer_index.length;
+            const num_peers = JSON.parse(status_response.toObject().moduleStatusJson).module[0].status.peer_index.length;
             this.f = Math.floor(num_peers / 3) + 1;
 
-            this.onIncomingMsg(msg);
+            this.onIncomingMsg(status_response);
 
 
         } else {
 
+            assert(bzn_envelope.hasDatabaseResponse());
+
+            const sender = bzn_envelope.getSender();
+
+            const payload = bzn_envelope.getDatabaseResponse();
+            const hex_payload = Buffer.from(payload).toString('hex');
+
+            const database_response = database_pb.database_response.deserializeBinary(new Uint8Array(payload));
+            const header = database_response.getHeader();
+
+            const nonce = header.getNonce();
+
+
+            // The message has already acheived the required number of signatures
+            if(!this.nonceMap.has(nonce)) {
+                return;
+            }
+
+
             // Collation logic: increment the signature counter and resolve when we have received enough
+            
+            const payloadMap = this.nonceMap.get(nonce);
 
-            const header = msg.getHeader();
+            if(!payloadMap.has(hex_payload)) {
+                payloadMap.set(hex_payload, []);
+            }
 
-            // this.onIncomingMsg(msg);
+            const senders = payloadMap.get(hex_payload);
+
+            if(!senders.includes(sender)) {
+                senders.push(sender);
+            }
+
+
+            // On success
+            if(senders.length >= this.f) {
+
+                this.nonceMap.delete(nonce);
+                this.onIncomingMsg(database_response);
+
+            }
 
         }
 
