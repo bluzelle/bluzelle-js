@@ -47,6 +47,7 @@ module.exports = class Collation {
         });
 
 
+        this.peers;
         this.f;
 
     }
@@ -105,8 +106,9 @@ module.exports = class Collation {
             // Collation logic: update number of required signatures
             // f = floor( |peers list] / 3 ) + 1
 
-            const num_peers = JSON.parse(status_response.toObject().moduleStatusJson).module[0].status.peer_index.length;
-            this.f = Math.floor(num_peers / 3) + 1;
+
+            this.peers = JSON.parse(status_response.toObject().moduleStatusJson).module[0].status.peer_index;
+            this.f = Math.floor(this.peers.length / 3) + 1;
 
             this.onIncomingMsg(status_response);
 
@@ -114,8 +116,16 @@ module.exports = class Collation {
         } else {
 
             assert(bzn_envelope.hasDatabaseResponse());
+            assert(this.f && this.peers);
 
             const sender = bzn_envelope.getSender();
+
+
+            // Discard senders that aren't on the peers list
+            if(!this.peers.map(p => p.uuid).includes(sender)) {
+                return;
+            }
+
 
             const payload = bzn_envelope.getDatabaseResponse();
             const hex_payload = Buffer.from(payload).toString('hex');

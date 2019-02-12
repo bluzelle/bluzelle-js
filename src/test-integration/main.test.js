@@ -24,9 +24,7 @@ describe('integration', () => {
 
         await bz.createDB();
 
-        // await bz.create('hello', 'world');
-
-        await new Promise(resolve => setTimeout(() => resolve(), 10000));
+        await bz.create('hello', 'world');
 
         assert.equal(await bz.read('hello'), 'world');
 
