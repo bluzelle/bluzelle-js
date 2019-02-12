@@ -33,8 +33,12 @@ module.exports = class Collation {
 
 
         // Maps nonces to the number of signatures they have accumulated.
-        // A field in this map means an outgoing message is awaiting a reply.
+        // A field in this map means an outgoing message is awaiting a reply
+        
         // For each nonce we have a payload map going to a signature set.
+
+        // For messages that don't need collation, the value is `true`.
+
         this.nonceMap = new Map();
 
 
@@ -85,7 +89,11 @@ module.exports = class Collation {
             assert(!this.nonceMap.has(nonce),
                 "Sending duplicate nonce. " + nonce);
 
-            this.nonceMap.set(nonce, new Map());
+
+            // quickreads do not need collation
+            const nonceMap_value = msg.hasQuickRead() ? true : new Map();
+
+            this.nonceMap.set(nonce, nonceMap_value);
 
 
             this.onOutgoingMsg(msg);
@@ -104,7 +112,7 @@ module.exports = class Collation {
             const status_response = status_pb.status_response.deserializeBinary(new Uint8Array(bzn_envelope.getStatusResponse()));
 
             // Collation logic: update number of required signatures
-            // f = floor( |peers list] / 3 ) + 1
+            // f = floor( |peers list| / 3 ) + 1
 
 
             this.peers = JSON.parse(status_response.toObject().moduleStatusJson).module[0].status.peer_index;
@@ -131,6 +139,7 @@ module.exports = class Collation {
             const hex_payload = Buffer.from(payload).toString('hex');
 
             const database_response = database_pb.database_response.deserializeBinary(new Uint8Array(payload));
+
             const header = database_response.getHeader();
 
             const nonce = header.getNonce();
@@ -139,6 +148,17 @@ module.exports = class Collation {
             // The message has already acheived the required number of signatures
             if(!this.nonceMap.has(nonce)) {
                 return;
+            }
+
+
+            // If this message bypasses the collation process
+            if(this.nonceMap.get(nonce) === true) {
+
+                this.nonceMap.delete(nonce);
+                this.onIncomingMsg(database_response);
+
+                return;
+
             }
 
 
@@ -162,6 +182,8 @@ module.exports = class Collation {
 
                 this.nonceMap.delete(nonce);
                 this.onIncomingMsg(database_response);
+
+                return;
 
             }
 

@@ -99,7 +99,7 @@ module.exports = class Crypto {
 
         assert(
             verify(Buffer.from(bin_for_the_win), Buffer.from(bzn_envelope.getSignature()), bzn_envelope.getSender()), 
-            'Signature failed to verify.');
+            'Signature failed to verify.\n' + Buffer.from(bin).toString('hex'));
         
 
         this.onIncomingMsg(bzn_envelope);

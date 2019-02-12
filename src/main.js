@@ -48,8 +48,7 @@ module.exports = {
         const sandwich = connect_layers(layers);
 
         api = new API(sandwich.sendOutgoingMsg);
-
-
+        
 
         // These API functions aren't actual database operations
 
