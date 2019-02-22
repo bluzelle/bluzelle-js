@@ -96,7 +96,21 @@ module.exports = class Connection {
 
             const entries = peer_index.map(({host, port}) => 'ws://' + host + ':' + port);
 
-            const connections = entries.map(entry => new WebSocket(entry));
+            let connections = entries.map(entry => {
+      
+                try {
+                    const w = new WebSocket(entry);
+                    w.onerror = e => {};
+
+                    return w;
+
+                } catch {
+                    return undefined;
+                }
+           
+            });
+
+            connections = connections.filter(c => c !== undefined);
 
             connections.forEach(ws => { ws.binaryType = 'arraybuffer'; });
 
