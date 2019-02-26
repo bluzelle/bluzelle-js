@@ -21,13 +21,15 @@ const status_pb = require('../proto/status_pb');
 
 module.exports = class Broadcast {
 
-    constructor({pointToPointLatencyBound, onIncomingMsg, onOutgoingMsg}) {
+    constructor({p2p_latency_bound, connection_layer, onIncomingMsg, onOutgoingMsg}) {
 
         this.onIncomingMsg = onIncomingMsg;
         this.onOutgoingMsg = onOutgoingMsg;
 
-        this.pointToPointLatencyBound = pointToPointLatencyBound;
-        this.timeout = pointToPointLatencyBound * 15;
+        this.p2p_latency_bound = p2p_latency_bound;
+        this.connection_layer = connection_layer;
+
+        this.timeout = p2p_latency_bound * 15;
 
         this.timeoutFns = new Map();
 
@@ -61,7 +63,7 @@ module.exports = class Broadcast {
 
         } 
 
-        this.onOutgoingMsg(ultimate_bin);
+        this.onOutgoingMsg(msg);
 
     }
 

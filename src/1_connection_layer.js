@@ -38,28 +38,127 @@ const observable = () => {
 };
 
 
-const connection_pool = [];
+class Connection {
 
-
-module.exports = class Connection {
-
-    constructor({entry, log, onIncomingMsg}) {
+    constructor({log, entry, onIncomingMsg}) {
 
         this.log = log;
         this.onIncomingMsg = onIncomingMsg;
 
-
-        this.socket; 
-        this.socket_info = observable();
+        this.connection_pool = [];
 
 
-        // queue up messages and send them when the connection opens
+        this.primary_socket = new PrimarySocket({
+            entry, 
+            onmessage: this.sendIncomingMsg.bind(this), 
+            connection_pool: this.connection_pool
+        });
+
+    }
+
+    sendOutgoingMsg(bin) {
+
+        this.log && logOutgoing(bin, this.log);
+
+        this.connection_pool.forEach(connection => connection.send(bin));
+
+    }
+
+    sendIncomingMsg(bin) {
+
+        // This method is called by all the connections inside of the connection pool
+
+        const actual_bin = Buffer.from(bin.data);
+
+        this.log && logIncoming(actual_bin, this.log);
+
+        this.onIncomingMsg(actual_bin);
+
+    }
+
+};
+
+
+class Socket {
+
+    constructor({entry, onmessage, connection_pool}) {
+
+        this.entry = entry;
+        this.onmessage = onmessage;
+        this.connection_pool = connection_pool;
+
         this.queue = [];
 
+        this.createSocket();
+
+        this.connection_pool.push(this);
+
+    }
+
+    createSocket() {
+
+        this.socket = new WebSocket(entry);
+        this.socket.binaryType = 'arraybuffer';
+
+        this.socket.addEventListener('open', () => {
+            this.queue.forEach(bin => this.send(bin));
+            this.queue = [];
+        });
+
+        this.socket.addEventListener('message', bin => this.onmessage(bin));
+        this.socket.addEventListener('close', () => this.die());
+        this.socket.addEventListener('error', () => this.die());
+
+    }
+
+    send(bin) {
+
+        if(this.socket && this.socket.readyState === 1) {
+
+            this.socket.send(bin);
+
+        } else {
+
+            this.queue.push(bin);
+
+        }
+
+    }
+
+    die() {
+
+        this.connection_pool.indexOf(this) !== -1 && this.connection_pool.splice(this.connection_pool.indexOf(this), 1);
+
+        this.socket && this.socket.close();
+
+    }
+
+}
+
+
+class PrimarySocket extends Socket {
+
+    constructor(...args) {
+
+        super(...args);
+        
+        this.socket_info = observable();
+
+    }
+
+
+    createSocket() {
+
+
+        // This message establishes a websocket with the entry, gets the peers list,
+        // attempts to establish connections with every node, and sets this.socket to
+        // be the one that opens first.
 
         // We could have this socket be passed as an argument to enable us to 
         // run the bootstrap multiple times over the lifetime of the client.
-        const entrySocket = new WebSocket(entry);
+
+
+        const entrySocket = new WebSocket(this.entry);
         entrySocket.binaryType = 'arraybuffer';
 
 
@@ -87,7 +186,7 @@ module.exports = class Connection {
 
 
             // Propagate status response for the collation layer
-            this.sendIncomingMsg(bin);
+            this.onmessage(bin);
 
 
             const stat = status_pb.status_response.deserializeBinary(new Uint8Array(bzn_envelope.getStatusResponse())).toObject();
@@ -100,7 +199,8 @@ module.exports = class Connection {
             const entries = peer_index.map(({host, port}) => 'ws://' + host + ':' + port);
 
             let connections = entries.map(entry => {
-      
+        
+                // Ignore failed connections
                 try {
                     const w = new WebSocket(entry);
                     w.onerror = e => {};
@@ -139,59 +239,28 @@ module.exports = class Connection {
             this.socket = best_connection;
             this.socket_info.set(peer_index[connections.indexOf(best_connection)]);
 
-            this.socket.addEventListener('message', bin => this.sendIncomingMsg(bin));
-
+            this.socket.addEventListener('message', bin => this.onmessage(bin));
+            this.socket.addEventListener('close', () => this.die());
+            this.socket.addEventListener('error', () => this.die());
 
             // Flush messages
 
-            this.queue.forEach(msg => this.sendOutgoingMsg(msg));
+            this.queue.forEach(bin => this.send(bin));
             this.queue = [];
 
         });
 
     }
 
-    sendOutgoingMsg(bin) {
+}
 
-        // we have a queue
-        // and we have lots of sockets
 
-        // we'll say during initialization that the sockets are empty
-        // then we'll send it to all sockets
-
-        // they need to be able to close & remove themselves    
-            // if the connection fails, they remove themselves
-            // if it's a temporary connection, they remove themselves
-        // they need to have their own queues
-
-        if(this.socket && this.socket.readyState === 1) {
-
-            this.log && logOutgoing(bin, this.log);
-            this.socket.send(bin);
-
-        } else {
-
-            this.queue.push(bin);
-
-        }
-
-    }
-
-    sendIncomingMsg(bin) {
-
-        const actual_bin = Buffer.from(bin.data);
-
-        this.log && logIncoming(actual_bin, this.log);
-
-        this.onIncomingMsg(actual_bin);
-
-    }
-
-    close() {
-        this.socket.close();
-    }
-
+module.exports = {
+    Connection,
+    Socket
 };
+
+
 
 
 

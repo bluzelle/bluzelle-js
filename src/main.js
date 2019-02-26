@@ -13,9 +13,10 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-const Connection = require('./1_connection_layer');
+const {Connection} = require('./1_connection_layer');
 const Crypto = require('./2_crypto_layer');
 const Collation = require('./3_collation_layer');
+const Broadcast = require('./4_broadcast_layer');
 const Redirect = require('./5_redirect_layer');
 const Metadata = require('./6_metadata_layer');
 const API = require('./7_api_layer');
@@ -27,7 +28,10 @@ const status_pb = require('../proto/status_pb');
 
 
 module.exports = {
-    bluzelle: ({entry, private_pem, uuid, log}) => {
+    bluzelle: ({entry, private_pem, uuid, log, p2p_latency_bound}) => {
+
+        p2p_latency_bound = p2p_latency_bound || 100;
+
 
         // Default log is console.log, but you can pass any other function.
         if(log && typeof log !== 'function') {
@@ -41,6 +45,7 @@ module.exports = {
             connection_layer,
             new Crypto({ private_pem, }), 
             new Collation({ connection_layer, }), 
+            new Broadcast({ p2p_latency_bound, connection_layer }),
             new Redirect({}),
             new Metadata({ uuid, }),
         ];
