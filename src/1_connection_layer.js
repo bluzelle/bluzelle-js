@@ -50,6 +50,7 @@ class Connection {
 
         this.primary_socket = new PrimarySocket({
             entry, 
+            log,
             onmessage: this.sendIncomingMsg.bind(this), 
             connection_pool: this.connection_pool
         });
@@ -76,12 +77,22 @@ class Connection {
 
     }
 
+    close() {
+
+        this.connection_pool.forEach(connection => connection.die());
+
+    }
+
 };
 
 
-class Socket {
+class GenericSocket {
 
-    constructor({entry, onmessage, connection_pool}) {
+    constructor({entry, onmessage, connection_pool, log}) {
+
+        this.log = log;
+
+        this.log && this.log('Opening socket at ' + entry);
 
         this.entry = entry;
         this.onmessage = onmessage;
@@ -97,7 +108,7 @@ class Socket {
 
     createSocket() {
 
-        this.socket = new WebSocket(entry);
+        this.socket = new WebSocket(this.entry);
         this.socket.binaryType = 'arraybuffer';
 
         this.socket.addEventListener('open', () => {
@@ -106,7 +117,6 @@ class Socket {
         });
 
         this.socket.addEventListener('message', bin => this.onmessage(bin));
-        this.socket.addEventListener('close', () => this.die());
         this.socket.addEventListener('error', () => this.die());
 
     }
@@ -127,6 +137,8 @@ class Socket {
 
     die() {
 
+        this.log && this.log('Closing socket at ' + this.entry);
+
         this.connection_pool.indexOf(this) !== -1 && this.connection_pool.splice(this.connection_pool.indexOf(this), 1);
 
         this.socket && this.socket.close();
@@ -136,7 +148,7 @@ class Socket {
 }
 
 
-class PrimarySocket extends Socket {
+class PrimarySocket extends GenericSocket {
 
     constructor(...args) {
 
@@ -240,7 +252,6 @@ class PrimarySocket extends Socket {
             this.socket_info.set(peer_index[connections.indexOf(best_connection)]);
 
             this.socket.addEventListener('message', bin => this.onmessage(bin));
-            this.socket.addEventListener('close', () => this.die());
             this.socket.addEventListener('error', () => this.die());
 
             // Flush messages
@@ -257,7 +268,7 @@ class PrimarySocket extends Socket {
 
 module.exports = {
     Connection,
-    Socket
+    GenericSocket
 };
 
 

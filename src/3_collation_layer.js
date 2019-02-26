@@ -86,8 +86,6 @@ module.exports = class Collation {
 
 
             const nonce = msg.getHeader().getNonce();
-            assert(!this.nonceMap.has(nonce),
-                "Sending duplicate nonce. " + nonce);
 
 
             // quickreads do not need collation

@@ -43,9 +43,9 @@ module.exports = {
 
         const layers = [
             connection_layer,
-            new Crypto({ private_pem, }), 
+            new Crypto({ private_pem, log, }), 
             new Collation({ connection_layer, }), 
-            new Broadcast({ p2p_latency_bound, connection_layer }),
+            new Broadcast({ p2p_latency_bound, connection_layer, log, }),
             new Redirect({}),
             new Metadata({ uuid, }),
         ];
