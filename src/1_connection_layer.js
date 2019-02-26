@@ -38,6 +38,9 @@ const observable = () => {
 };
 
 
+const connection_pool = [];
+
+
 module.exports = class Connection {
 
     constructor({entry, log, onIncomingMsg}) {
@@ -149,6 +152,17 @@ module.exports = class Connection {
     }
 
     sendOutgoingMsg(bin) {
+
+        // we have a queue
+        // and we have lots of sockets
+
+        // we'll say during initialization that the sockets are empty
+        // then we'll send it to all sockets
+
+        // they need to be able to close & remove themselves    
+            // if the connection fails, they remove themselves
+            // if it's a temporary connection, they remove themselves
+        // they need to have their own queues
 
         if(this.socket && this.socket.readyState === 1) {
 

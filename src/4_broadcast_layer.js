@@ -29,6 +29,8 @@ module.exports = class Broadcast {
         this.pointToPointLatencyBound = pointToPointLatencyBound;
         this.timeout = pointToPointLatencyBound * 15;
 
+        this.timeoutFns = new Map();
+
     }
 
 
@@ -36,20 +38,46 @@ module.exports = class Broadcast {
 
         assert(msg instanceof database_pb.database_msg || msg instanceof status_pb.status_request);
 
-        if(msg)
+        if(msg instanceof database_pb.database_msg) {
+
+            const nonce = msg.getHeader().getNonce();
+            setTimeout(() => {
+                
+                this.timeoutFns.get(nonce)();
+                this.timeoutFns.delete(nonce);
+
+            }, this.timeout);
+
+
+            // This gets overwritten when the messages comes back
+            // so a properly-responded message does not execute a broadcast
+
+            this.timeoutFns.set(nonce, () => {
+
+                // trigger a broadcast
+                broadcast(msg);
+
+            }); 
+
+        } 
 
         this.onOutgoingMsg(ultimate_bin);
 
     }
 
 
-    sendIncomingMsg(bin) {
+    sendIncomingMsg(msg) {
 
         assert(msg instanceof database_pb.database_response || msg instanceof status_pb.status_response);
 
-        // 
+        if(msg instanceof database_pb.database_response) {
 
-        this.onIncomingMsg(bzn_envelope);
+            const nonce = msg.getHeader().getNonce();
+            this.timeoutFns.has(nonce) && this.timeoutFns.set(nonce, () => {});
+
+        }
+
+        this.onIncomingMsg(msg);
 
     }
 
