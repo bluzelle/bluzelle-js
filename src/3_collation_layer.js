@@ -174,7 +174,6 @@ module.exports = class Collation {
                 senders.push(sender);
             }
 
-
             // On success
             if(senders.length >= this.f) {
 

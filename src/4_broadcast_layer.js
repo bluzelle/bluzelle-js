@@ -108,8 +108,6 @@ module.exports = class Broadcast {
 
         if(!this.sockets) { 
 
-            console.log('new sockets being created', this.sockets, this.peers);
-
             this.sockets = this.peers.map(peer => new GenericSocket({
                 onmessage: m => this.connection_layer.sendIncomingMsg(m),
                 entry: 'ws://' + peer.host + ':' + peer.port,
