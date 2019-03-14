@@ -276,7 +276,7 @@ class BroadcastSocket extends GenericSocket {
 
             const database_msg = database_pb.database_msg.deserializeBinary(new Uint8Array(bzn_envelope.getDatabaseMsg()));
 
-            if(database_response.hasQuickRead()) {
+            if(database_msg.hasQuickRead()) {
 
                 // Don't send quickreads
                 return;
