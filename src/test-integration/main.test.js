@@ -12,7 +12,7 @@ it('version', () => {
 });
 
 
-const log = false;
+const log = true;
 const entry = 'ws://localhost:50000';
 const p2p_latency_bound = 100;
 
@@ -158,6 +158,13 @@ describe('integration', () => {
 
         await assert.rejects(bz.read('1'));
 
+    });
+
+    it.only('ttl', async function () {
+
+        await bz.createDB();
+        await bz.create('key', 'value', 5);
+        await bz.ttl('key');
     });
 
 
