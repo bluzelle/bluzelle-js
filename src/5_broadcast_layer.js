@@ -20,6 +20,31 @@ const status_pb = require('../proto/status_pb');
 const {BroadcastSocket} = require('./1_connection_layer');
 
 
+// This construction gives you a function, clearTimeouts, that clears
+// all the active timeouts without knowing their explicit id's.
+
+const timeout = (() => {
+
+    const timeouts = new Set();
+
+    return {
+        setTimeout: (f, t) => {
+            let id = setTimeout(() => {
+                timeouts.remove(id);
+                f();
+            }, t);
+
+            timeouts.add(id);
+        },
+
+        clearTimeouts: () => {
+            timeouts.forEach(clearTimeout);
+        };
+    };
+
+})();
+
+
 module.exports = class Broadcast {
 
     constructor({p2p_latency_bound, connection_layer, onIncomingMsg, log, onOutgoingMsg}) {
@@ -60,7 +85,7 @@ module.exports = class Broadcast {
 
 
             const nonce = database_msg.getHeader().getNonce();
-            setTimeout(() => {
+            timeout.setTimeout(() => {
                     
                 const fn = this.timeoutFns.get(nonce);
                 this.timeoutFns.delete(nonce);
@@ -132,6 +157,13 @@ module.exports = class Broadcast {
         }
 
         this.sendOutgoingMsg(bzn_envelope);
+
+    }
+
+
+    close() {
+
+        timeout.clearTimeouts();
 
     }
 

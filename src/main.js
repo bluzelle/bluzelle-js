@@ -50,13 +50,14 @@ module.exports = {
         public_pem = public_pem || pub_from_priv(private_pem);
 
         const connection_layer = new Connection({ entry, log, onclose });
+        const broadcast_layer = new Broadcast({ p2p_latency_bound, connection_layer, log, });
 
         const layers = [
             connection_layer,
             new Serialization({}),
             new Crypto({ private_pem, public_pem, log, }), 
             new Collation({ connection_layer, }), 
-            new Broadcast({ p2p_latency_bound, connection_layer, log, }),
+            broadcast_layer,
             new Redirect({}),
             new Envelope({}),
             new Metadata({ uuid: uuid || public_pem, log, }),
@@ -71,7 +72,10 @@ module.exports = {
 
         api.publicKey = () => public_pem;
 
-        api.close = () => layers[0].close();
+        api.close = () => {
+            connection_layer.close();
+            broadcast_layer.close();
+        }
 
 
         return api;
