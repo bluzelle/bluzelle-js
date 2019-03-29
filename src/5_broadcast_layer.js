@@ -30,7 +30,7 @@ const timeout = (() => {
     return {
         setTimeout: (f, t) => {
             let id = setTimeout(() => {
-                timeouts.remove(id);
+                timeouts.delete(id);
                 f();
             }, t);
 
