@@ -37,9 +37,7 @@ const timeout = (() => {
             timeouts.add(id);
         },
 
-        clearTimeouts: () => {
-            timeouts.forEach(clearTimeout);
-        };
+        clearTimeouts: () => timeouts.forEach(clearTimeout)
     };
 
 })();
