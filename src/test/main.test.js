@@ -17,6 +17,8 @@ const {bluzelle, version} = require('../main');
 const assert = require('assert');
 const {random_key} = require('../swarmClient/ecdsa_secp256k1');
 
+const {ethereum_rpc, contract_address} = require('./connection_config');
+
 
 // assert.rejects polyfill (doesn't work in browser for some reason)
 assert.rejects = assert.rejects || (async (p, e) => {
@@ -30,10 +32,6 @@ assert.rejects = assert.rejects || (async (p, e) => {
     }
 
 });
-
-
-const ethereum_rpc = 'http://127.0.0.1:8545';
-const contract_address = '0x4A63cbeD58d96397631A6Bede32beBae2030c152';
 
 
 const log = true;
