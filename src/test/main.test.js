@@ -33,7 +33,7 @@ assert.rejects = assert.rejects || (async (p, e) => {
 
 
 const ethereum_rpc = 'http://127.0.0.1:8545';
-const contract_address = '0x2Bc0589Fc40F21254407966B7f39654a05a7CD34';
+const contract_address = '0x4A63cbeD58d96397631A6Bede32beBae2030c152';
 
 
 const log = true;
@@ -241,6 +241,7 @@ describe('api', function() {
         assert.deepEqual(await bz.size(), {
             bytes: 0,
             keys: 0,
+            maxSize: 0,
             remainingBytes: 0
         });
 
