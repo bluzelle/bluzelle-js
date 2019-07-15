@@ -1,7 +1,7 @@
 # Quick Start
 
 {% hint style="info" %}
-Bluzelle offers two networks: a mainnet and a testnet. While both are freely accessible, the testnet provides more liberal permissioning policies and may be used out-of-box.
+Bluzelle offers two networks: a mainnet and a testnet. The testnet provides more liberal permissioning policies and may be used out-of-box.
 
 Currently, only the Bluzelle testnet is available. 
 {% endhint %}
