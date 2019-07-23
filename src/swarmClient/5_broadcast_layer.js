@@ -86,7 +86,9 @@ module.exports = class Broadcast {
             }
 
 
-            if(this.timeoutCounter.has(nonce) && this.timeoutCounter.get(nonce) > this.timeoutLimit) {
+            const nonce = msg.getHeader().getNonce();
+
+            if(this.timeoutCounter.has(nonce) && this.timeoutCounter.get(nonce) >= this.timeoutLimit) {
 
                 // generate timeout error
 
@@ -106,10 +108,11 @@ module.exports = class Broadcast {
 
                 this.sendIncomingMsg(bzn_env);
 
+                return;
+
             }
 
 
-            const nonce = msg.getHeader().getNonce();
             timeout.setTimeout(() => {
                     
                 const fn = this.timeoutFns.get(nonce);
