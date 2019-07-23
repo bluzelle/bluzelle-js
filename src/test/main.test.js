@@ -15,7 +15,7 @@
 
 const {bluzelle, version} = require('../main');
 const assert = require('assert');
-const {random_key} = require('../swarmClient/ecdsa_secp256k1');
+const {random_key} = require('../swarmClient/ecdsa_p256');
 
 const {ethereum_rpc, contract_address} = require('./connection_config');
 
@@ -39,8 +39,8 @@ const logDetailed = true;
 
 
 // these mirror the keys in scripts/run-swarms.rb
-const master_pub_key = "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEE/Yeq9sYdyeou+TnNEJjMnuntrzqcFIfIHd49LW461d55TY4hVX66ZXXGvAWRqMVMeELtYuKGYU44bPaxTb1ig==";
-const master_priv_key = "MHQCAQEEIEOd7E9zSxgJjtpGzK/gHl0vVSOZ2iF3TY50InD67BnHoAcGBSuBBAAKoUQDQgAEE/Yeq9sYdyeou+TnNEJjMnuntrzqcFIfIHd49LW461d55TY4hVX66ZXXGvAWRqMVMeELtYuKGYU44bPaxTb1ig==";
+const master_pub_key = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE79SZP8fwH41w625SdSlgppnb9kM3sjGjIvTtMN3bSRprhzG+koe+pChwR/0zi2TCZbT38hGS2aShwwCQmr+rRg==";
+const master_priv_key = "MHcCAQEEIGqgOPCPj4WNInx08fRzrOS7YnDYjb5Wr3Obzkg3B6mjoAoGCCqGSM49AwEHoUQDQgAE79SZP8fwH41w625SdSlgppnb9kM3sjGjIvTtMN3bSRprhzG+koe+pChwR/0zi2TCZbT38hGS2aShwwCQmr+rRg==";
 
 
 describe('Secret master key database creation', () => {
