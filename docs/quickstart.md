@@ -33,7 +33,7 @@ $ npm init
 
 ## 2. Install the `bluzelle` NPM package
 
-Run `npm install bluzelle` to get the latest and greatest Bluzelle sdk \(see [installation](installation.md) for more details\).
+Run `npm install bluzelle` to get the latest and greatest Bluzelle sdk \(see [installation](details/installation.md) for more details\).
 
 ## 3. Run a simple program
 
