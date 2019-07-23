@@ -56,8 +56,6 @@ class Connection {
     sendOutgoingMsg(bin) {
 
         this.log && logOutgoing(bin, this);
-
-
         
 
         this.connection_pool.forEach(connection => {
