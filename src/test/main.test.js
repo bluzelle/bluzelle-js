@@ -438,11 +438,4 @@ describe('api', function() {
     });
 
 
-    it('timeout', async () => {
-
-        // 1ms timeout should reject before doing anything
-        await assert.rejects(bz.create('a', 'b').timeout(1));
-
-    });
-
 });
