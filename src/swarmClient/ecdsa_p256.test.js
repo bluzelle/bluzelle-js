@@ -18,7 +18,7 @@ const assert = require('assert');
 const { verify, sign, pub_from_priv, import_private_key_from_base64, get_pem_private_key } = require('./ecdsa_p256');
 
 
-describe.only('ECDSA Verification', () => {
+describe('ECDSA Verification', () => {
 
     let msg_base64;
     let sig_base64;
@@ -27,7 +27,7 @@ describe.only('ECDSA Verification', () => {
 
     // How to generate these test cases with OpenSSL:
 
-    // > openssl ecparam -name secp256k1 -genkey -noout -out alice_priv_key.pem
+    // > openssl ecparam -name secp256r1 -genkey -noout -out alice_priv_key.pem
     // > openssl ec -in alice_priv_key.pem -pubout -out alice_pub_key.pem
 
     // > echo "my secret message" > msg.txt
@@ -53,8 +53,8 @@ describe.only('ECDSA Verification', () => {
     it('2', () => {
 
         msg_base64 = "ZG9uYWxkIHRydW1wCg==";
-        sig_base64 = "MEYCIQCL5tdt4ub/havbxOElhz1QVufBMkwi5fhYohAOWc48ygIhAIUYHZjEACtBtIjVSlrdhCsbBGOolfhnjy5MSiQUgDJj";
-        pub_key_base64 = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE0gguHw+ppQV2AxaIc1B/meQUifvIWCUn6E0/CVJiE7kovM7Jzze6wu4n30j6ydps2+ZazPZwDTdFJQCcBi+bag==";
+        sig_base64 = "MEUCIFTe341zGw0+XiWCAJy/W6V/Pp0tqFAqjxMCY6NZAOKPAiEApnkmJmPwO+I/z30whRILTiBHINQf5bVZohsDz52elug=";
+        pub_key_base64 = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEvpJb/kMFzGGbCdUhnAQgzhFTNy4IjX3F6PC8g7kMgcOGG6WCActNqWnacmqNOGUJBfgyO/k2eZdarOJ6UWw+kQ==";
 
         f();
 
@@ -87,7 +87,7 @@ describe('ECDSA Signing', () => {
     it('1', () => {
 
         msg_base64 = "ChQKEEJlc3REYXRhYmFzZUV2ZXIQKiIqCghzb21lIGtleRIedmVyeSBpbXBvcnRhbnQgZGF0YSBhbmQgc3R1ZmZz";
-        priv_key_base64 = "MHQCAQEEIJGS3Ehg1rsVG5MKIfPZ/hWOoBR6hwfWCeQ6cNvSZqWGoAcGBSuBBAAKoUQDQgAEgWZh744sleHAQFvLz3vNFXeE27KMNMjtZqdPfw4kapIIHXSMpyTgvrN3g2hTc3Iaf4ZkuOVJKwwIjTMMgpyC0g==";
+        priv_key_base64 = "MHcCAQEEID3tAyrmePvGCV0tdVNBlLfeKW9tzo8O+ksYPQx8sFkQoAoGCCqGSM49AwEHoUQDQgAEAohAsgUkgA5v39HV6KeN21T4q95xEwi9MVb78cqpDkkxSmlYE/b8173bCB6V/GlOaDyzjUSidUY6h3l5b9i2bw==";
 
         f();
 
@@ -96,7 +96,7 @@ describe('ECDSA Signing', () => {
     it('2', () => {
 
         msg_base64 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
-        priv_key_base64 = "MHQCAQEEID1CnLSlzpRdv0JT9B9zTLAtQ3U75tgaF1zdkJbRCMF/oAcGBSuBBAAKoUQDQgAEOXPEdTs23dLC+DhWxoYX6TAft/Y3zXRfdAZi/VpFsmkI042sbF1uxQ3APtfFNmPFYlBW7blw/BisrkPPJFCxEQ==";
+        priv_key_base64 = "MHcCAQEEIPVolbv5L/Toru7ffRwSQf69iXXy/90titBSg258mIyToAoGCCqGSM49AwEHoUQDQgAEaen8dJGiR3JbFVlCf9KLcivNtM2/d80fuI7XTSx+JhBOAURLryuEmD9shb/vZXftOZDH1G7pMPzGQKdvuHoWNA==";
 
         f();
 
@@ -105,7 +105,7 @@ describe('ECDSA Signing', () => {
     it('3', () => {
 
         msg_base64 = "120|MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE2FcxJdkJ+nrjhkDRiPQ6mFf5OOAKeWedOukyim0UveUVt0CvE1UAQHTBlQLN2CRhiKdStOduOU6IjCYcFdX+rg==2|100|1|0";
-        priv_key_base64 = "MHQCAQEEIPf6MgiFUbvtT+wLCDKrFdO6QPOb9S4lbrhsF3DOhOjhoAcGBSuBBAAKoUQDQgAE2FcxJdkJ+nrjhkDRiPQ6mFf5OOAKeWedOukyim0UveUVt0CvE1UAQHTBlQLN2CRhiKdStOduOU6IjCYcFdX+rg==";
+        priv_key_base64 = "MHcCAQEEINEP9JKZorJ0QQ4F7LZUDQg8Z/YUXor478WZTwTCAugIoAoGCCqGSM49AwEHoUQDQgAE08fyoFd9+GfKXwxeu3euD2mpFKnAagVqBqqWzNgu7520Ig8RCmoNASH/s4Vu7HaJSDIHXpozmtHhnOr4TGZf/Q==";
 
         f();
 
@@ -139,8 +139,8 @@ describe('ECDSA Generate Public PEM from Private PEM', () => {
 
     it('', () => {
 
-        const priv_key_base64 = "MHQCAQEEIFNmJHEiGpgITlRwao/CDki4OS7BYeI7nyz+CM8NW3xToAcGBSuBBAAKoUQDQgAEndHOcS6bE1P9xjS/U+SM2a1GbQpPuH9sWNWtNYxZr0JcF+sCS2zsD+xlCcbrRXDZtfeDmgD9tHdWhcZKIy8ejQ==";
-        const pub_key_base64 = "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEndHOcS6bE1P9xjS/U+SM2a1GbQpPuH9sWNWtNYxZr0JcF+sCS2zsD+xlCcbrRXDZtfeDmgD9tHdWhcZKIy8ejQ==";
+        const priv_key_base64 = "MHcCAQEEIGqgOPCPj4WNInx08fRzrOS7YnDYjb5Wr3Obzkg3B6mjoAoGCCqGSM49AwEHoUQDQgAE79SZP8fwH41w625SdSlgppnb9kM3sjGjIvTtMN3bSRprhzG+koe+pChwR/0zi2TCZbT38hGS2aShwwCQmr+rRg==";
+        const pub_key_base64 = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE79SZP8fwH41w625SdSlgppnb9kM3sjGjIvTtMN3bSRprhzG+koe+pChwR/0zi2TCZbT38hGS2aShwwCQmr+rRg==";
 
         const pub = pub_from_priv(priv_key_base64);
 
@@ -153,7 +153,7 @@ describe('ECDSA Generate Private PEM', () => {
 
     it('', () => {
 
-        const priv_key_base64 = "MHQCAQEEIFNmJHEiGpgITlRwao/CDki4OS7BYeI7nyz+CM8NW3xToAcGBSuBBAAKoUQDQgAEndHOcS6bE1P9xjS/U+SM2a1GbQpPuH9sWNWtNYxZr0JcF+sCS2zsD+xlCcbrRXDZtfeDmgD9tHdWhcZKIy8ejQ==";
+        const priv_key_base64 = "MHcCAQEEIGR/5ZSlaD/vPWH1+T4fmHvT2aLCx+EmzCoRkI8uhIwzoAoGCCqGSM49AwEHoUQDQgAEsYBUmvc/EAY69Uttj6y7FQT9UCWZS+EMt07gz1hLNeOoYGA+zMDUHU3hlyK//41/rk4waOr8iURz9YCMkp6eAg==";
 
         const ec = import_private_key_from_base64(priv_key_base64);
 

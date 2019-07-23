@@ -16,14 +16,14 @@
 
 const assert = require('assert');
 const EC = require('elliptic').ec;
-const sha256 = require('hash.js/lib/hash/sha/256');
+const sha512 = require('hash.js/lib/hash/sha/512');
 
 
 const verify = (msg_bin, sig_bin, pub_key_base64) => {
 
     const ec_key = import_public_key_from_base64(pub_key_base64);
 
-    const msg_hash = sha256().update(msg_bin).digest();
+    const msg_hash = sha512().update(msg_bin).digest();
 
 
     // Signature base64 decoding handled by elliptic.
@@ -37,7 +37,7 @@ const sign = (msg_bin, priv_key_base64) => {
 
     const ec_key = import_private_key_from_base64(priv_key_base64);
 
-    const msg_hash = sha256().update(msg_bin).digest();
+    const msg_hash = sha512().update(msg_bin).digest();
 
     const sig_bin = ec_key.sign(msg_hash).toDER();
 
@@ -56,16 +56,13 @@ const pub_from_priv = priv_key_base64 => {
 
     // This is the only way we get the long-form encoding found in PEM's.
 
-    const pub = ec_key.getPublic(false, 'base64');
+    const pub = ec_key.getPublic('hex');
 
 
     // Strip the first byte since those are present
     // in the base64 header we've provided.
 
-    const pub_hex = Buffer.from(pub).toString('hex');
-
-    return "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE" + 
-        Buffer.from(pub_hex.substring(2), 'hex').toString('base64');
+    return Buffer.from('3059301306072a8648ce3d020106082a8648ce3d030107034200' + pub, 'hex').toString('base64');
 
 };
 
@@ -122,13 +119,6 @@ const import_public_key_from_base64 = pub_key_base64 => {
 };
 
 
-// Like the above but for private keys.
-
-// -----BEGIN EC PRIVATE KEY-----
-// MHQCAQEEIFH0TCvEu585ygDovjHE9SxW5KztFhbm4iCVOC67h0tEoAcGBSuBBAAK
-// oUQDQgAE9Icrml+X41VC6HTX21HulbJo+pV1mtWn4+evJAi8ZeeLEJp4xg++JHoD
-// m8rQbGWfVM84eqnb/RVuIXqoz6F9Bg==
-// -----END EC PRIVATE KEY-----
 
 
 const import_private_key_from_base64 = priv_key_base64 => {
@@ -149,13 +139,13 @@ const import_private_key_from_base64 = priv_key_base64 => {
 
     const header1 = key_hex.substring(0, 14);
 
-    assert.equal(header1, "30740201010420",
+    assert.equal(header1, "30770201010420",
         "ECDSA Private Key Import: private key header is malformed. This is the private key you're trying to decode: \"" + priv_key_base64 + '"');
 
-    const header2 = key_hex.substring(78, 78 + 26)
+    const header2 = key_hex.substring(78, 78 + 34)
 
 
-    assert.equal(header2, "a00706052b8104000aa1440342",
+    assert.equal(header2, "a00a06082a8648ce3d030107a144034200",
         "ECDSA Private Key Import: private key header is malformed. This is the private key you're trying to decode: \"" + priv_key_base64 + '"');
 
 
@@ -174,7 +164,7 @@ const import_private_key_from_base64 = priv_key_base64 => {
 const get_pem_private_key = ec => {
 
     return Buffer.from(
-            '30740201010420' + ec.getPrivate('hex') + 'a00706052b8104000aa144034200' + ec.getPublic('hex'),
+            '30770201010420' + ec.getPrivate('hex') + 'a00a06082a8648ce3d030107a144034200' + ec.getPublic('hex'),
             'hex').toString('base64');
 
 };
