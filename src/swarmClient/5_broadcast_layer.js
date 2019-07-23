@@ -65,10 +65,6 @@ module.exports = class Broadcast {
 
         this.timeoutFns = new Map();
 
-        this.timeoutCounter = new Map();
-
-        this.timeoutLimit = 3; 
-
     }
 
 
@@ -87,32 +83,6 @@ module.exports = class Broadcast {
 
 
             const nonce = msg.getHeader().getNonce();
-
-            if(this.timeoutCounter.has(nonce) && this.timeoutCounter.get(nonce) >= this.timeoutLimit) {
-
-                // generate timeout error
-
-                const bzn_env = new bluzelle_pb.bzn_envelope();
-                const db_resp = new database_pb.database_response();
-
-                bzn_env.setDatabaseResponse(db_resp);
-
-                db_resp.setHeader(msg.getHeader());
-
-                const err = new database_pb.database_error();
-
-                err.setMessage('timeout after three rebroadcasts');
-
-                db_resp.setError(err);
-
-
-                this.sendIncomingMsg(bzn_env);
-
-                return;
-
-            }
-
-
             timeout.setTimeout(() => {
                     
                 const fn = this.timeoutFns.get(nonce);
@@ -126,7 +96,6 @@ module.exports = class Broadcast {
             // so a properly-responded message does not execute a broadcast
 
             this.timeoutFns.set(nonce, () => this.broadcast(bzn_envelope, msg)); 
-            this.timeoutCounter.set(nonce, this.timeoutCounter.has(nonce) ? (this.timeoutCounter.get(nonce) + 1) : 0);
 
         } 
 
@@ -151,10 +120,6 @@ module.exports = class Broadcast {
 
                 this.sockets && this.sockets.forEach(socket => socket.close());
                 this.sockets = undefined;
-            }
-
-            if(this.timeoutCounter.has(nonce)) {
-                this.timeoutCounter.delete(nonce);
             }
 
         }
