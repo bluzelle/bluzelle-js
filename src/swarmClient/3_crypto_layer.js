@@ -15,7 +15,7 @@
 
 
 const assert = require('assert');
-const { verify, sign } = require('./ecdsa_secp256k1');
+const { verify, sign } = require('./ecdsa_p256');
 const bluzelle_pb = require('../../proto/bluzelle_pb');
 const database_pb = require('../../proto/database_pb');
 const status_pb = require('../../proto/status_pb');

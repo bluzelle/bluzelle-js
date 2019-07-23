@@ -56,8 +56,6 @@ const pub_from_priv = priv_key_base64 => {
 
     // This is the only way we get the long-form encoding found in PEM's.
 
-    // It returns a buffer and not base64 for God-knows why.
-
     const pub = ec_key.getPublic(false, 'base64');
 
 
@@ -101,18 +99,20 @@ const import_public_key_from_base64 = pub_key_base64 => {
     // - 1.3.132.0.10 secp256k1 (SECG (Certicom) named elliptic curve)
     // - The length and type of the remaining bitstring.
 
-    // To derive this, take a sample secp256k1 public key from OpenSSL and run it through
+    // To derive this, take a sample ec public key from OpenSSL and run it through
     // an ASN.1 decoder such as https://lapo.it/asn1js/.
 
-    const header = key_hex.substring(0, 46);
 
-    assert.equal(header, "3056301006072a8648ce3d020106052b8104000a034200",
-        "ECDSA Signature Verification: public key header is malformed for secp256k1. This is the public key you're trying to decode: \"" + pub_key_base64 + '"');
+    const header = key_hex.substring(0, 52);
+
+    assert.equal(header, "3059301306072a8648ce3d020106082a8648ce3d030107034200",
+        "ECDSA Signature Verification: public key header is malformed for secp256r1. This is the public key you're trying to decode: \"" + pub_key_base64 + '"');
 
 
-    const body = key_hex.substring(46, key_hex.length);
+    const body = key_hex.substring(52, key_hex.length);
 
-    const ec = new EC('secp256k1');
+
+    const ec = new EC('p256');
 
 
     // Decodes the body into x and y.
@@ -161,7 +161,7 @@ const import_private_key_from_base64 = priv_key_base64 => {
 
     const body = key_hex.substring(14, 14 + 64);
 
-    const ec = new EC('secp256k1');
+    const ec = new EC('p256');
 
 
     // Decodes the body into x and y.
@@ -182,10 +182,12 @@ const get_pem_private_key = ec => {
 
 const random_key = entropy => {
 
-    const ecdsa = new EC('secp256k1');
+    const ecdsa = new EC('p256');
     const keys = ecdsa.genKeyPair({
         entropy
     });
+
+    console.log(keys.getPublic('hex'));
 
     return get_pem_private_key(keys);
 
