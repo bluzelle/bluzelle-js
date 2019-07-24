@@ -26,6 +26,47 @@ const decode = binary => Buffer.from(binary).toString('utf-8');
 
 
 
+// returns a normal promise with a default timeout
+
+// and a method .timeout(t) that can customize the time
+
+// when t=0, the timeout is indefinite 
+
+const timeout_promise = f => {
+
+    const default_timeout = 5000;
+    
+    
+    const nullify_error = p => p.catch(() => {});
+    const unnullify_error = p => new Promise((a, b) => p.then(a, b));
+
+    
+    const timeout = t => 
+        Promise.race([
+            p, 
+            new Promise((_, rej) => 
+                setTimeout(() => 
+                    rej(new Error('operation timed out after ' + t + 'ms')), t))
+        ]);
+
+
+    const p = new Promise(f);
+    nullify_error(p);
+
+    const p2 = timeout(default_timeout);
+        
+    p2.timeout = t => {
+            
+        nullify_error(p2);
+        
+        return t === 0 ? unnullify_error(p) : timeout(t);
+           
+    };
+
+    return p2;
+
+};
+
 
 module.exports = class API {
 
@@ -38,7 +79,7 @@ module.exports = class API {
 
     status() {
 
-        return new Promise((resolve, reject) => {
+        return timeout_promise((resolve, reject) => {
 
             const status_request = new status_pb.status_request();
 
@@ -58,7 +99,7 @@ module.exports = class API {
         assert(typeof key === 'string', 'Key must be a string');
         assert(typeof value === 'string', 'Value must be a string');
 
-        return new Promise((resolve, reject) => {
+        return timeout_promise((resolve, reject) => {
 
             const msg = new database_pb.database_msg();
 
@@ -98,7 +139,7 @@ module.exports = class API {
         assert(typeof key === 'string', 'Key must be a string');
         assert(typeof value === 'string', 'Value must be a string');
 
-        return new Promise((resolve, reject) => {
+        return timeout_promise((resolve, reject) => {
 
             const msg = new database_pb.database_msg();
 
@@ -137,7 +178,7 @@ module.exports = class API {
 
         assert(typeof key === 'string', 'Key must be a string');
 
-        return new Promise((resolve, reject) => {
+        return timeout_promise((resolve, reject) => {
 
             const msg = new database_pb.database_msg();
 
@@ -176,7 +217,7 @@ module.exports = class API {
 
         assert(typeof key === 'string', 'Key must be a string');
 
-        return new Promise((resolve, reject) => {
+        return timeout_promise((resolve, reject) => {
 
             const msg = new database_pb.database_msg();
 
@@ -218,7 +259,7 @@ module.exports = class API {
 
         assert(typeof key === 'string', 'Key must be a string');
 
-        return new Promise((resolve, reject) => {
+        return timeout_promise((resolve, reject) => {
 
             const msg = new database_pb.database_msg();
 
@@ -255,7 +296,7 @@ module.exports = class API {
 
         assert(typeof key === 'string', 'Key must be a string');
 
-        return new Promise((resolve, reject) => {
+        return timeout_promise((resolve, reject) => {
 
             const msg = new database_pb.database_msg();
 
@@ -293,7 +334,7 @@ module.exports = class API {
 
     keys() {
 
-        return new Promise((resolve, reject) => {
+        return timeout_promise((resolve, reject) => {
 
             const msg = new database_pb.database_msg();
 
@@ -326,7 +367,7 @@ module.exports = class API {
 
     size() {
 
-        return new Promise((resolve, reject) => {
+        return timeout_promise((resolve, reject) => {
 
             const msg = new database_pb.database_msg();
 
@@ -362,7 +403,7 @@ module.exports = class API {
         assert(typeof key === 'string', 'Key must be a string');
         assert(typeof expire === 'number', 'Expiry must be a number');
 
-        return new Promise((resolve, reject) => {
+        return timeout_promise((resolve, reject) => {
 
             const msg = new database_pb.database_msg();
 
@@ -400,7 +441,7 @@ module.exports = class API {
 
         assert(typeof key === 'string', 'Key must be a string');
 
-        return new Promise((resolve, reject) => {
+        return timeout_promise((resolve, reject) => {
 
             const msg = new database_pb.database_msg();
 
@@ -437,7 +478,7 @@ module.exports = class API {
 
         assert(typeof key === 'string', 'Key must be a string');
 
-        return new Promise((resolve, reject) => {
+        return timeout_promise((resolve, reject) => {
 
             const msg = new database_pb.database_msg();
 
@@ -474,7 +515,7 @@ module.exports = class API {
 
     _createDB(maxsize=0, policy_type='none') {
 
-        return new Promise((resolve, reject) => {
+        return timeout_promise((resolve, reject) => {
 
             const msg = new database_pb.database_msg();
 
@@ -516,7 +557,7 @@ module.exports = class API {
 
     _updateDB(maxsize=0, policy_type='none') {
 
-        return new Promise((resolve, reject) => {
+        return timeout_promise((resolve, reject) => {
 
             const msg = new database_pb.database_msg();
 
@@ -558,7 +599,7 @@ module.exports = class API {
 
     _deleteDB() {
 
-        return new Promise((resolve, reject) => {
+        return timeout_promise((resolve, reject) => {
 
             const msg = new database_pb.database_msg();
 
@@ -591,7 +632,7 @@ module.exports = class API {
 
     _hasDB() {
 
-        return new Promise((resolve, reject) => {
+        return timeout_promise((resolve, reject) => {
 
             const msg = new database_pb.database_msg();
 
@@ -626,7 +667,7 @@ module.exports = class API {
 
     _getWriters() {
 
-        return new Promise((resolve, reject) => {
+        return timeout_promise((resolve, reject) => {
 
             const msg = new database_pb.database_msg();
 
@@ -667,7 +708,7 @@ module.exports = class API {
         assert(typeof writers === 'string' || (Array.isArray(writers) && writers.every(writer => typeof writer === 'string')),
             'Writers must be a string or an array of strings');
 
-        return new Promise((resolve, reject) => {
+        return timeout_promise((resolve, reject) => {
 
             const msg = new database_pb.database_msg();
 
@@ -705,7 +746,7 @@ module.exports = class API {
         assert(typeof writers === 'string' || (Array.isArray(writers) && writers.every(writer => typeof writer === 'string')),
             'Writers must be a string or an array of strings');
 
-        return new Promise((resolve, reject) => {
+        return timeout_promise((resolve, reject) => {
 
             const msg = new database_pb.database_msg();
 
