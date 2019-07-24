@@ -31,7 +31,7 @@ describe('ECDSA Verification', () => {
     // > openssl ec -in alice_priv_key.pem -pubout -out alice_pub_key.pem
 
     // > echo "my secret message" > msg.txt
-    // > openssl dgst -sha512 -sign alice_priv_key.pem msg.txt > signature.bin
+    // > openssl dgst -sha256 -sign alice_priv_key.pem msg.txt > signature.bin
 
     // > openssl base64 < msg.txt
     // > openssl base64 < signature.bin
