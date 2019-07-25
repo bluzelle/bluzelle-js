@@ -15,7 +15,7 @@
 
 
 const assert = require('assert');
-const { verify, sign } = require('./ecdsa_secp256k1');
+const crypto = require('isomorphic-crypto');
 const bluzelle_pb = require('../../proto/bluzelle_pb');
 const database_pb = require('../../proto/database_pb');
 const status_pb = require('../../proto/status_pb');
@@ -60,7 +60,7 @@ module.exports = class Crypto {
 
         if(!isQuickread) {
 
-            bzn_envelope.setSender(this.public_pem);
+            bzn_envelope.setSender(this.public_pem.split('\n').slice(1, 3).join(''));
 
             const signed_bin = Buffer.concat([
                 bzn_envelope.getSender(), 
@@ -69,7 +69,15 @@ module.exports = class Crypto {
                 bzn_envelope.getTimestamp()
             ].map(deterministic_serialize));
 
-            bzn_envelope.setSignature(new Uint8Array(sign(signed_bin, this.private_pem)));
+
+            const s = crypto.createSign('sha256');
+
+            s.update(signed_bin);
+
+            const sig = s.sign(this.private_pem, 'base64');
+
+            bzn_envelope.setSignature(new Uint8Array(Buffer.from(sig, 'base64')));
+
         }
 
 
@@ -111,8 +119,19 @@ module.exports = class Crypto {
             }
         }   
 
-        if(!verify(Buffer.from(signed_bin), Buffer.from(bzn_envelope.getSignature()), bzn_envelope.getSender())) {            
+
+        const v = crypto.createVerify('sha256');
+
+        v.update(signed_bin);
+
+        const sender = '-----BEGIN PUBLIC KEY-----\n' + 
+            bzn_envelope.getSender().match(/.{1,64}/g).join('\n') + 
+            '\n-----END PUBLIC KEY-----';
+
+      
+        if(!v.verify(sender, bzn_envelope.getSignature(), 'base64')) {            
             this.log && this.log('Bluzelle: signature failed to verify: ' + Buffer.from(bin).toString('hex'));
+            return;
         }
 
         this.onIncomingMsg(bzn_envelope);

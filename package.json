@@ -7,7 +7,7 @@
   "scripts": {
     "setup-daemon": "cp -R ./test-daemon/configs/. ./test-daemon/daemon-build/output/",
     "test-node": "mocha \"`git rev-parse --show-toplevel`/src/**/*.test.js\" --exit --timeout 8000",
-    "test-browser": "cd `git rev-parse --show-toplevel`/test-browser; webpack main.test.js -o main.test.pack.js --mode=\"development\"; open mocha.html",
+    "test-browser": "cd `git rev-parse --show-toplevel`; webpack test-browser/main.test.js -o test-browser/main.test.pack.js --mode=\"development\"; open test-browser/mocha.html",
     "build": "webpack"
   },
   "devDependencies": {
@@ -22,9 +22,9 @@
   "license": "ISC",
   "dependencies": {
     "big-integer": "^1.6.40",
-    "elliptic": "^6.4.1",
     "google-protobuf": "^3.6.1",
     "hash.js": "^1.1.5",
+    "isomorphic-crypto": "^3.0.0",
     "isomorphic-ws": "^4.0.1",
     "lodash": "^4.17.11",
     "web3": "1.0.0-beta.37",

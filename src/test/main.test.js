@@ -15,7 +15,6 @@
 
 const {bluzelle, version} = require('../main');
 const assert = require('assert');
-const {random_key} = require('../swarmClient/ecdsa_secp256k1');
 
 const {ethereum_rpc, contract_address} = require('./connection_config');
 
@@ -39,8 +38,16 @@ const logDetailed = true;
 
 
 // these mirror the keys in scripts/run-swarms.rb
-const master_pub_key = "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEE/Yeq9sYdyeou+TnNEJjMnuntrzqcFIfIHd49LW461d55TY4hVX66ZXXGvAWRqMVMeELtYuKGYU44bPaxTb1ig==";
-const master_priv_key = "MHQCAQEEIEOd7E9zSxgJjtpGzK/gHl0vVSOZ2iF3TY50InD67BnHoAcGBSuBBAAKoUQDQgAEE/Yeq9sYdyeou+TnNEJjMnuntrzqcFIfIHd49LW461d55TY4hVX66ZXXGvAWRqMVMeELtYuKGYU44bPaxTb1ig==";
+const master_pub_key = "-----BEGIN PUBLIC KEY-----\n\
+MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEE/Yeq9sYdyeou+TnNEJjMnuntrzqcFIf\n\
+IHd49LW461d55TY4hVX66ZXXGvAWRqMVMeELtYuKGYU44bPaxTb1ig==\n\
+-----END PUBLIC KEY-----";
+
+const master_priv_key = "-----BEGIN EC PRIVATE KEY-----\n\
+MHQCAQEEIEOd7E9zSxgJjtpGzK/gHl0vVSOZ2iF3TY50InD67BnHoAcGBSuBBAAK\n\
+oUQDQgAEE/Yeq9sYdyeou+TnNEJjMnuntrzqcFIfIHd49LW461d55TY4hVX66ZXX\n\
+GvAWRqMVMeELtYuKGYU44bPaxTb1ig==\n\
+-----END EC PRIVATE KEY-----";
 
 
 describe('Secret master key database creation', () => {
@@ -80,32 +87,6 @@ describe('Secret master key database creation', () => {
 
     });
 
-    it.skip('Fails with non-master key', async () => {
-
-        const apis = await bluzelle({
-            ethereum_rpc, 
-            contract_address,
-
-            private_pem: random_key(),
-
-            uuid: Math.random().toString(),
-            log,
-            logDetailed,
-
-            _connect_to_all: true
-        });
-
-        await assert.rejects(
-            apis[0]._createDB(),
-            {
-                message: 'ACCESS_DENIED'
-            }    
-        );
-
-        apis.forEach(api => api.close());
-
-    });
-
 });
 
 
@@ -117,22 +98,6 @@ it('version', () => {
 });
 
 
-it('rejects operations on a non-extant database', async () => {
-
-    await assert.rejects(bluzelle({
-        ethereum_rpc, 
-        contract_address,
-
-        private_pem: random_key(),
-
-        uuid: Math.random().toString(),
-        log,
-        logDetailed,
-    }), {
-        message: "UUID does not exist in the Bluzelle swarm. Contact us at https://gitter.im/bluzelle/Lobby."
-    });
-
-});
 
 describe('api', function() {
     this.timeout(5000);
@@ -316,7 +281,7 @@ describe('api', function() {
     
 
 
-    it('writers', async () => {
+    it.skip('writers', async () => {
 
         assert.deepEqual(
             await bz._getWriters(), 
@@ -374,41 +339,6 @@ describe('api', function() {
         bz.close();
 
     });
-
-
-    it('public key validation', async () => {
-
-        const key = random_key();
-
-        const bz2 = await bluzelle({
-            ethereum_rpc, 
-            contract_address,
-
-            private_pem: master_priv_key,
-            public_pem: master_pub_key,
-
-            uuid,
-            log,
-            logDetailed,
-        });
-
-        bz2.close();
-
-
-        await assert.rejects(() => bluzelle({
-            ethereum_rpc, 
-            contract_address,
-
-            private_pem: master_priv_key,
-            public_pem: 'I am invalid',
-
-            uuid,
-            log,
-            logDetailed,
-        }));
-
-    });
-
 
 
     it('onclose', async () => {

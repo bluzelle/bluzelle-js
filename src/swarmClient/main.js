@@ -25,9 +25,6 @@ const Metadata = require('./8_metadata_layer');
 const API = require('./9_api_layer');
 
 const WebSocket = require('isomorphic-ws');
-
-
-const { pub_from_priv, import_private_key_from_base64, import_public_key_from_base64 } = require('./ecdsa_secp256k1');
 const assert = require('assert');
 
 
@@ -37,16 +34,6 @@ module.exports = {
         p2p_latency_bound = p2p_latency_bound || 100;
 
         onclose = (onclose && once(onclose)) || (() => {});
-
-
-
-        if(public_pem) {
-            // throws an error if key is malformed
-            import_public_key_from_base64(public_pem);
-        }
-
-        public_pem = public_pem || pub_from_priv(private_pem);
-
 
 
         const [ws, entry_uuid, entry_obj] = await fastest_peer(peerslist, log);

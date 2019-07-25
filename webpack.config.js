@@ -27,7 +27,7 @@ module.exports = [
         target: 'node',
 
         plugins: [
-            new WebpackShellPlugin({onBuildStart: ['proto/updateProto.sh']}),
+            new WebpackShellPlugin({onBuildStart: ['./proto/updateProto.sh']}),
             new webpack.IgnorePlugin(/^electron$/)
         ],
 
@@ -49,8 +49,8 @@ module.exports = [
 
         plugins: [
             new WebpackShellPlugin({onBuildStart: [
-                'proto/updateProto.sh', 
-                'scripts/scrypt.rb']}),
+                './proto/updateProto.sh', 
+                './scripts/scrypt.rb']}),
         ],
 
         module: {
