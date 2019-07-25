@@ -42,8 +42,8 @@ describe('ECDSA Verification', () => {
     it('1', () => {
 
         msg_base64 = "bXkgc2VjcmV0IG1lc3NhZ2UK";
-        sig_base64 = "MEYCIQCL5tdt4ub/havbxOElhz1QVufBMkwi5fhYohAOWc48ygIhAIUYHZjEACtBtIjVSlrdhCsbBGOolfhnjy5MSiQUgDJj";
-        pub_key_base64 = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEuHKSU6+rzH7okuma0B3DylxeviwiEpAWwIXe5cFQBxJ4aQ+bPyEvJSviNSFhGOJt/kmRrh6WN81gyai4rcX72w==";
+        sig_base64 = "MEQCIDLOINBqN0FgJb/fz1aLMVfRYvxMvcP1GBil6Qhzvj7DAiAYeaGTdr/kaNuzapuaBI8CIC+FSI3NzM2lVGr4xYMX1Q==";
+        pub_key_base64 = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEhk+qdNDFSgjmNxvhB9LzBjjK59++MI0cVLSFwH1460y3ADYG/oaqsxNh8Kc9HvP9MGZAOddcQPgA9KfAo2IrEQ==";
 
         f();
 
@@ -52,9 +52,9 @@ describe('ECDSA Verification', () => {
 
     it('2', () => {
 
-        msg_base64 = "ZG9uYWxkIHRydW1wCg==";
-        sig_base64 = "MEUCIFTe341zGw0+XiWCAJy/W6V/Pp0tqFAqjxMCY6NZAOKPAiEApnkmJmPwO+I/z30whRILTiBHINQf5bVZohsDz52elug=";
-        pub_key_base64 = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEvpJb/kMFzGGbCdUhnAQgzhFTNy4IjX3F6PC8g7kMgcOGG6WCActNqWnacmqNOGUJBfgyO/k2eZdarOJ6UWw+kQ==";
+        msg_base64 = "RG9uYWxkIFRydW1wCg==";
+        sig_base64 = "MEYCIQDykPIMU1mD79cACNZAnPqeBEkGs6ireqKoTJ3kZN/48AIhAOg09HV7S2I7bVqws18W6RFe7q4HVRpCA5G5vLIGeCh7";
+        pub_key_base64 = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEUCZ5mxnfxdQK/1z3+rmqYvgnQn4KnB3oOGdQ/oF3AXWMJK0jra2nCmtIcUV3mcNaursMlKuRrkoUDloLezpyXw==";
 
         f();
 
