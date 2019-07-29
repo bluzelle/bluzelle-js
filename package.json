@@ -7,7 +7,7 @@
   "scripts": {
     "setup-daemon": "cp -R ./test-daemon/configs/. ./test-daemon/daemon-build/output/",
     "test-node": "mocha \"`git rev-parse --show-toplevel`/src/**/*.test.js\" --exit --timeout 8000",
-    "test-browser": "cd `git rev-parse --show-toplevel`; webpack test-browser/main.test.js -o test-browser/main.test.pack.js --mode=\"development\"; open test-browser/mocha.html",
+    "test-browser": "cd `git rev-parse --show-toplevel`; webpack test-browser/main.test.js -o test-browser/main.test.pack.js --mode=\"development\" --target=\"web\" --output-library-target=\"this\"; open test-browser/mocha.html",
     "build": "webpack"
   },
   "devDependencies": {
