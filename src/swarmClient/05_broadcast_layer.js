@@ -18,7 +18,7 @@ const assert = require('assert');
 const bluzelle_pb = require('../../proto/bluzelle_pb');
 const database_pb = require('../../proto/database_pb');
 const status_pb = require('../../proto/status_pb');
-const {BroadcastSocket} = require('./1_connection_layer');
+const {BroadcastSocket} = require('./01_connection_layer');
 
 
 // This construction gives you a function, clearTimeouts, that clears

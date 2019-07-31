@@ -19,9 +19,18 @@ const crypto = require('isomorphic-crypto');
 const bluzelle_pb = require('../../proto/bluzelle_pb');
 const database_pb = require('../../proto/database_pb');
 const status_pb = require('../../proto/status_pb');
+const {deterministic_serialize} = require('./serialize');
 
 
-module.exports = class Crypto {
+const format_public = str => 
+    
+    '-----BEGIN PUBLIC KEY-----\n' + 
+    str.match(/.{1,64}/g).join('\n') + 
+    '\n-----END PUBLIC KEY-----';
+
+
+
+module.exports = class CryptoVerify {
 
     constructor({private_pem, public_pem, onIncomingMsg, onOutgoingMsg, log}) {
 
@@ -40,47 +49,7 @@ module.exports = class Crypto {
 
         assert(bzn_envelope instanceof bluzelle_pb.bzn_envelope);
 
-
-        // Skip status requests
-
-        if(msg instanceof status_pb.status_request) {
-
-            bzn_envelope.setStatusRequest(msg.serializeBinary());
-
-            this.onOutgoingMsg(bzn_envelope);
-            return;
-        }
-
-        
-        // quickreads are not signed
-        const isQuickread = msg.hasQuickRead();
-
-        bzn_envelope.setDatabaseMsg(msg.serializeBinary());
-
-
-        if(!isQuickread) {
-
-            bzn_envelope.setSender(this.public_pem.split('\n').slice(1, 3).join(''));
-
-            const signed_bin = Buffer.concat([
-                bzn_envelope.getSender(), 
-                bzn_envelope.getPayloadCase(),                 
-                Buffer.from(bzn_envelope.getDatabaseMsg()),
-                bzn_envelope.getTimestamp()
-            ].map(deterministic_serialize));
-
-
-            const s = crypto.createSign('sha256');
-
-            s.update(signed_bin);
-
-            const sig = s.sign(this.private_pem, 'base64');
-
-            bzn_envelope.setSignature(new Uint8Array(Buffer.from(sig, 'base64')));
-
-        }
-
-
+        // pass through
 
         this.onOutgoingMsg(bzn_envelope);
 
@@ -120,16 +89,32 @@ module.exports = class Crypto {
         }   
 
 
-        const v = crypto.createVerify('sha256');
+        const sender = format_public(bzn_envelope.getSender());
 
-        v.update(signed_bin);
 
-        const sender = '-----BEGIN PUBLIC KEY-----\n' + 
-            bzn_envelope.getSender().match(/.{1,64}/g).join('\n') + 
-            '\n-----END PUBLIC KEY-----';
+        let verification;
+
+        try {
+
+            const v = crypto.createVerify('sha256');
+
+            v.update(signed_bin);
+
+            verification = v.verify(sender, bzn_envelope.getSignature(), 'base64');
+
+        } catch(e) {   
+
+            // This block runs when there is a problem with something like key formatting
+
+            this.log && this.log('Cryptographic verification error; ' + e.message);
+
+            verification = false;
+
+        }
+
 
       
-        if(!v.verify(sender, bzn_envelope.getSignature(), 'base64')) {            
+        if(!verification) {            
             this.log && this.log('Bluzelle: signature failed to verify: ' + Buffer.from(bin).toString('hex'));
             return;
         }
@@ -137,26 +122,5 @@ module.exports = class Crypto {
         this.onIncomingMsg(bzn_envelope);
 
     }
-
-};
-
-
-// see crypto.cpp in daemon
-
-const deterministic_serialize = obj => {
-
-    if(obj instanceof Buffer) {
-
-        return Buffer.concat([
-            Buffer.from(obj.length.toString() + '|', 'ascii'),
-            obj
-        ]);
-
-    }
-
-
-    // numbers and strings
-
-    return Buffer.from(obj.toString().length + '|' + obj.toString(), 'ascii');
 
 };

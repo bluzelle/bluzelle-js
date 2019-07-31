@@ -80,7 +80,6 @@ module.exports = {
         // wait for swarms to open
         swarms = await Promise.all(swarms.map(resolveAnyCase));
 
-
         // filter dead swarms
         swarms = swarms.filter(p => p !== 'undefined');
 

@@ -14,15 +14,16 @@
 // limitations under the License.
 
 
-const {Connection} = require('./1_connection_layer');
-const Serialization = require('./2_serialization_layer');
-const Crypto = require('./3_crypto_layer');
-const Collation = require('./4_collation_layer');
-const Broadcast = require('./5_broadcast_layer');
-const Redirect = require('./6_redirect_layer');
-const Envelope = require('./7_envelope_layer');
-const Metadata = require('./8_metadata_layer');
-const API = require('./9_api_layer');
+const {Connection} = require('./01_connection_layer');
+const Serialization = require('./02_serialization_layer');
+const Verify = require('./03_crypto_verify_layer');
+const Collation = require('./04_collation_layer');
+const Broadcast = require('./05_broadcast_layer');
+const Redirect = require('./06_redirect_layer');
+const Sign = require('./07_crypto_sign_layer');
+const Envelope = require('./08_envelope_layer');
+const Metadata = require('./09_metadata_layer');
+const API = require('./10_api_layer');
 
 const WebSocket = require('isomorphic-ws');
 const assert = require('assert');
@@ -58,14 +59,15 @@ module.exports = {
             connection_layer,
 
             new Serialization({}),
-            new Crypto({ private_pem, public_pem, log, }), 
-            new Collation({ peerslist, point_of_contact: entry_uuid, log, }), 
+            new Verify({ private_pem, public_pem, log, }), 
+            new Collation({ peerslist, log, }), 
 
             broadcast_layer,
 
             new Redirect({}),
+            new Sign({ private_pem, public_pem, log, }), 
             new Envelope({ swarm_id }),
-            new Metadata({ uuid: uuid || public_pem, log, }),
+            new Metadata({ uuid: uuid || public_pem, log, point_of_contact: entry_uuid }),
 
         ];
 

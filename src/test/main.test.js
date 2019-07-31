@@ -38,16 +38,9 @@ const logDetailed = true;
 
 
 // these mirror the keys in scripts/run-swarms.rb
-const master_pub_key = "-----BEGIN PUBLIC KEY-----\n\
-MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEE/Yeq9sYdyeou+TnNEJjMnuntrzqcFIf\n\
-IHd49LW461d55TY4hVX66ZXXGvAWRqMVMeELtYuKGYU44bPaxTb1ig==\n\
------END PUBLIC KEY-----";
+const master_pub_key = "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEE/Yeq9sYdyeou+TnNEJjMnuntrzqcFIfIHd49LW461d55TY4hVX66ZXXGvAWRqMVMeELtYuKGYU44bPaxTb1ig==";
 
-const master_priv_key = "-----BEGIN EC PRIVATE KEY-----\n\
-MHQCAQEEIEOd7E9zSxgJjtpGzK/gHl0vVSOZ2iF3TY50InD67BnHoAcGBSuBBAAK\n\
-oUQDQgAEE/Yeq9sYdyeou+TnNEJjMnuntrzqcFIfIHd49LW461d55TY4hVX66ZXX\n\
-GvAWRqMVMeELtYuKGYU44bPaxTb1ig==\n\
------END EC PRIVATE KEY-----";
+const master_priv_key = "MHQCAQEEIEOd7E9zSxgJjtpGzK/gHl0vVSOZ2iF3TY50InD67BnHoAcGBSuBBAAKoUQDQgAEE/Yeq9sYdyeou+TnNEJjMnuntrzqcFIfIHd49LW461d55TY4hVX66ZXXGvAWRqMVMeELtYuKGYU44bPaxTb1ig==";
 
 
 describe('Secret master key database creation', () => {
@@ -281,7 +274,7 @@ describe('api', function() {
     
 
 
-    it.skip('writers', async () => {
+    it('writers', async () => {
 
         assert.deepEqual(
             await bz._getWriters(), 
@@ -374,5 +367,26 @@ describe('api', function() {
         await assert.rejects(bz.create('a', 'b').timeout(1));
 
     });
+
+
+});
+
+
+
+it('rejects bad priv key', async () => {
+
+
+    await assert.rejects(bluzelle({
+        ethereum_rpc, 
+        contract_address,
+
+        private_pem: master_priv_key.replace('a', 'b'),
+        public_pem: master_pub_key,
+
+        log,
+        logDetailed,
+
+        uuid: Math.random().toString()
+    }));
 
 });

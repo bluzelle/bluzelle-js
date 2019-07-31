@@ -64,8 +64,6 @@ module.exports = class Collation {
         }
 
 
-        msg.getHeader().setPointOfContact(this.point_of_contact);
-
         const nonce = msg.getHeader().getNonce();
 
 

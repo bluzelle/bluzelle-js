@@ -24,7 +24,7 @@ const assert = require('assert');
 
 module.exports = class Metadata {
 
-    constructor({uuid, onOutgoingMsg, log}) {
+    constructor({uuid, onOutgoingMsg, log, point_of_contact}) {
 
         this.uuid = uuid;
         this.onOutgoingMsg = onOutgoingMsg;
@@ -33,6 +33,8 @@ module.exports = class Metadata {
 
         this.nonceMap = new Map();
         this.status_fns = [];
+
+        this.point_of_contact = point_of_contact;
 
     }
 
@@ -60,9 +62,12 @@ module.exports = class Metadata {
         header.setDbUuid(this.uuid);
 
 
+
         const nonce = generateNonce();
 
         header.setNonce(nonce);
+        header.setPointOfContact(this.point_of_contact);
+
 
         msg.setHeader(header);
 

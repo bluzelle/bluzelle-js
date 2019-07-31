@@ -21,7 +21,7 @@ const status_pb = require('../../proto/status_pb');
 
 
 
-module.exports = class Crypto {
+module.exports = class Envelope {
 
     constructor({onIncomingMsg, onOutgoingMsg, swarm_id}) {
 
