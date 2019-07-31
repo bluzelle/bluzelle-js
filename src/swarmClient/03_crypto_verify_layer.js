@@ -20,14 +20,7 @@ const bluzelle_pb = require('../../proto/bluzelle_pb');
 const database_pb = require('../../proto/database_pb');
 const status_pb = require('../../proto/status_pb');
 const {deterministic_serialize} = require('./serialize');
-
-
-const format_public = str => 
-    
-    '-----BEGIN PUBLIC KEY-----\n' + 
-    str.match(/.{1,64}/g).join('\n') + 
-    '\n-----END PUBLIC KEY-----';
-
+const {format_public} = require('./crypto');
 
 
 module.exports = class CryptoVerify {

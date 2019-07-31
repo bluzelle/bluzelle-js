@@ -20,14 +20,19 @@ const Web3 = require('web3');
 
 const abi = require('../BluzelleESR/build/contracts/BluzelleESR.json').abi;
 
+const {verify_pair} = require('./swarmClient/crypto');
+
+
 
 module.exports = {
 
-    bluzelle: async ({ethereum_rpc, contract_address, _connect_to_all, log, ...args}) => {
+    bluzelle: async ({ethereum_rpc, contract_address, _connect_to_all, log, private_pem, public_pem, ...args}) => {
         
         ethereum_rpc = ethereum_rpc || default_connection.ethereum_rpc;
         contract_address = contract_address || default_connection.contract_address;
         
+        verify_pair(private_pem, public_pem);
+
 
 
         // Add timestamp to logs
@@ -69,6 +74,8 @@ module.exports = {
                 peerslist: swarm.peers,
                 swarm_id,
                 log,
+                private_pem,
+                public_pem,
                 ...args
             }));
 

@@ -373,7 +373,7 @@ describe('api', function() {
 
 
 
-it('rejects bad priv key', async () => {
+it('rejects invalid key', async () => {
 
 
     await assert.rejects(bluzelle({
@@ -382,6 +382,27 @@ it('rejects bad priv key', async () => {
 
         private_pem: master_priv_key.replace('a', 'b'),
         public_pem: master_pub_key,
+
+        log,
+        logDetailed,
+
+        uuid: Math.random().toString()
+    }));
+
+});
+
+
+it('rejects non-matching keys', async () => {
+
+
+    await assert.rejects(bluzelle({
+        ethereum_rpc, 
+        contract_address,
+
+        private_pem: master_priv_key,
+
+        // random new public key
+        public_pem: "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEBnQzp91DeLb1fcxvopRniGb4lPOPDCM4z4D45NnjDR6zxOKQa+57vQhftSh+097nCb1JMi5w+FQ0nHnog7Y5sw==",
 
         log,
         logDetailed,
