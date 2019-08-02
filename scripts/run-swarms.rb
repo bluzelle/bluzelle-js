@@ -8,10 +8,10 @@
 
 
 #these mirror the keys in src/test/main.test.js
-master_pub_key = "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEE/Yeq9sYdyeou+TnNEJjMnuntrzqcFIfIHd49LW461d55TY4hVX66ZXXGvAWRqMVMeELtYuKGYU44bPaxTb1ig=="
+master_pub_key = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE79SZP8fwH41w625SdSlgppnb9kM3sjGjIvTtMN3bSRprhzG+koe+pChwR/0zi2TCZbT38hGS2aShwwCQmr+rRg=="
 
 # this private key is included here only for reference purposes
-master_priv_key = "MHQCAQEEIEOd7E9zSxgJjtpGzK/gHl0vVSOZ2iF3TY50InD67BnHoAcGBSuBBAAKoUQDQgAEE/Yeq9sYdyeou+TnNEJjMnuntrzqcFIfIHd49LW461d55TY4hVX66ZXXGvAWRqMVMeELtYuKGYU44bPaxTb1ig=="
+master_priv_key = "MHcCAQEEIGqgOPCPj4WNInx08fRzrOS7YnDYjb5Wr3Obzkg3B6mjoAoGCCqGSM49AwEHoUQDQgAE79SZP8fwH41w625SdSlgppnb9kM3sjGjIvTtMN3bSRprhzG+koe+pChwR/0zi2TCZbT38hGS2aShwwCQmr+rRg=="
 
 
 if(ARGV.length == 0)
