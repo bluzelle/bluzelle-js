@@ -6,6 +6,11 @@ See the API at [https://devel-docs.bluzelle.com/bluzelle-js/](https://devel-docs
 Build Status (branch devel): [![Build Status](https://travis-ci.org/bluzelle/bluzelle-js.svg?branch=devel)](https://travis-ci.org/bluzelle/bluzelle-js)
 
 
-## Build Instructions
+## Installation
+
+Run `npm install bluzelle` to get the latest version of bluzelle-js.
+
+
+## Building and Testing Instructions
 
 Please see `./docs/details/installation.md` or https://docs.bluzelle.com/bluzelle-js/installation

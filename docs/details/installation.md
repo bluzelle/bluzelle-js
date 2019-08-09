@@ -13,10 +13,10 @@ If you are interested in a cutting-edge build of bluzelle-js, or wish to use alt
 1. Clone the [bluzelle-js repository](https://github.com/bluzelle/bluzelle-js) and checkout your desired branch. Run `git submodule init` and `git submodule update`. If you checkout to a new branch, be sure to rerun `git submodule update`. 
 2. Compile BluzelleESR 
    1. `cd BluzelleESR`
-   2. `npm install`
+   2. `npm ci`
    3. `npm run truffle compile`
    4. `cd ..` 
-3. Run `npm install` to fetch the project's dependencies.
+3. Run `npm ci` to fetch the project's dependencies.
 4. Run `npx webpack` to build the library. The bundled versions, for browser and node environments, will be found in the `dist/` directory.
 
 
