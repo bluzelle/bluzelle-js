@@ -1,5 +1,5 @@
-swarmDB
-docs
-test-daemon
-swarmDB
-BluzelleESR
+*
+.*
+!package.json
+!lib
+!lib/*
