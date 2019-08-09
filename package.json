@@ -19,7 +19,7 @@
     "webpack-shell-plugin": "^0.5.0"
   },
   "author": "Monty Thibault, John Lam",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "dependencies": {
     "big-integer": "^1.6.40",
     "elliptic": "^6.4.1",
