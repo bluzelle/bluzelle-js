@@ -17,7 +17,7 @@ If you are interested in a cutting-edge build of bluzelle-js, or wish to use alt
    3. `npm run truffle compile`
    4. `cd ..` 
 3. Run `npm ci` to fetch the project's dependencies.
-4. Run `npx webpack` to build the library. The bundled versions, for browser and node environments, will be found in the `dist/` directory.
+4. Run `npx webpack` to build the library. The bundled versions, for browser and node environments, will be found in the `lib/` directory.
 
 
 ## Linking from source
