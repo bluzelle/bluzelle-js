@@ -13,15 +13,12 @@ If you are interested in a cutting-edge build of bluzelle-js, or wish to use alt
 1. Clone the [bluzelle-js repository](https://github.com/bluzelle/bluzelle-js) and checkout your desired branch. Run `git submodule init` and `git submodule update`. If you checkout to a new branch, be sure to rerun `git submodule update`. 
 2. Compile BluzelleESR 
    1. `cd BluzelleESR`
-   2. `npm install`
+   2. `npm ci`
    3. `npm run truffle compile`
    4. `cd ..` 
-3. Run `npm install` to fetch the project's dependencies.
-4. Run `npx webpack` to build the library. The bundled versions, for browser and node environments, will be found in the `dist/` directory.
+3. Run `npm ci` to fetch the project's dependencies.
+4. Run `npx webpack` to build the library. The bundled versions, for browser and node environments, will be found in the `lib/` directory.
 
-{% hint style="info" %}
-If you encounter errors during the build, try running `npm i --save websocket`.
-{% endhint %}
 
 ## Linking from source
 
@@ -32,3 +29,36 @@ Once you have a build, you probably want to use it in a JavaScript project. We w
 
 Now you will be able to use your custom-built version of bluzelle-js exactly the same as if you had downloaded it off NPM.
 
+
+## Running tests
+
+This repository contains a small set of tests for development purposes. A more comprehensive set of tests may be found at https://github.com/bluzelle/qa. 
+
+The test suite can be run in both node and browser.
+
+1. Build the library
+2. Get a swarm to test against. See "Deploying a local swarm" below for instructions on the tools included in this repository.
+3. Configure the swarm entry point. Modify `./src/test/connection_config.json` with your preferred entry url and contract address.
+4. `npm run test-node`
+5. `npm run test-browser`
+
+
+{% hint style="info" %}
+`npm run test-browser` uses the `open` command to open the webpage `./test-browser/mocha.html` in a browser. If you are not on Mac, you may navigate to and open this file manually.
+{% endhint %}
+
+
+
+## Deploying a local swarm
+
+1. Build the library
+2. Build `./swarmDB` (See https://github.com/bluzelle/swarmDB)
+3. Run [Ganache GUI](https://www.trufflesuite.com/ganache)
+4. Update `./scripts/deploy-ethereum.js:6` to one of the addresses in Ganache GUI.
+5. `cd scripts`
+6. `./run-swarms.rb 3`. This command will spawn several nodes and print a highlighted contract address.
+
+
+{% hint style="info" %}
+This process has not been verified to work on linux.
+{% endhint %}

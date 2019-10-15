@@ -395,7 +395,7 @@ describe('api', function() {
         bz2.close();
 
 
-        await assert.rejects(() => bluzelle({
+        await assert.rejects(bluzelle({
             ethereum_rpc, 
             contract_address,
 
