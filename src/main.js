@@ -14,8 +14,7 @@
 // limitations under the License.
 
 const {swarmClient} = require('./swarmClient/main');
-const default_peerslist_endpoint = require('../default_peerslist_endpoint');
-require('isomorphic-fetch');
+const {getSwarms} = require('./peerslist');
 
 
 module.exports = {
@@ -129,8 +128,3 @@ const promise_const = async (p, v) => {
     return v;
 };
 
-const getSwarms = async peerslist_endpoint => {
-    
-    return (await fetch(peerslist_endpoint)).json();
-
-};
