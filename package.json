@@ -6,8 +6,9 @@
   "browser": "lib/bluzelle-web.js",
   "scripts": {
     "setup-daemon": "cp -R ./test-daemon/configs/. ./test-daemon/daemon-build/output/",
-    "test-node": "mocha \"`git rev-parse --show-toplevel`/src/**/*.test.js\" --exit --timeout 8000",
+    "test-node": "mocha \"`git rev-parse --show-toplevel`/src/**/*.test.js\" --exit",
     "test-browser": "cd `git rev-parse --show-toplevel`/test-browser; npx webpack; open mocha.html",
+    "test-integration": "mocha \"`git rev-parse --show-toplevel`/test-integration/**/*.test.js\" --exit --timeout 8000",
     "build": "webpack"
   },
   "devDependencies": {
