@@ -13,9 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const {bluzelle, version} = require('../main');
+const {bluzelle, version} = require('./src/main');
 const assert = require('assert');
-const {random_key} = require('../swarmClient/ecdsa_p256');
+const {random_key} = require('./src/swarmClient/ecdsa_p256');
 
 const {ethereum_rpc, contract_address} = require('./connection_config');
 
