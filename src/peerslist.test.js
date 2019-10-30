@@ -9,7 +9,7 @@ const fs = require('fs');
 const assert = require('assert');
 
 
-const sample_JSON = '{ a: 123 }';
+const sample_JSON = '{ "a": 123 }';
 
 describe('peerslist tests', () => {
 
@@ -35,9 +35,9 @@ describe('peerslist tests', () => {
 
 
 
-    it('should download a peerslist in the correct format', () => {
+    it('should download a peerslist in the provided format', async () => {
 
-        assert.equal(getSwarms('https://localhost:8080'), sample_JSON);
+        assert.deepEqual(await getSwarms('http://localhost:8080'), JSON.parse(sample_JSON));
 
     });
 
