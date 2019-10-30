@@ -30,7 +30,12 @@ Once you have a build, you probably want to use it in a JavaScript project. We w
 Now you will be able to use your custom-built version of bluzelle-js exactly the same as if you had downloaded it off NPM.
 
 
-## Running tests
+## Running unit tests
+
+`npm run test-unit`
+
+
+## Running integration tests
 
 This repository contains a small set of tests for development purposes. A more comprehensive set of tests may be found at https://github.com/bluzelle/qa. 
 
