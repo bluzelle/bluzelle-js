@@ -28,3 +28,4 @@ Now you will be able to use your custom-built version of bluzelle-js exactly the
 ## Running unit tests
 
 `npm run test-node`
+`PORT=8085 npm run test-node`
