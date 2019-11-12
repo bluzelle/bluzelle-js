@@ -27,7 +27,7 @@ Now you will be able to use your custom-built version of bluzelle-js exactly the
 
 ## Running unit tests
 
-`npm run test-unit`
+`npm run test-node`
 
 
 ## Running integration tests
