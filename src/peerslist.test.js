@@ -42,4 +42,11 @@ describe('peerslist tests', () => {
 
     });
 
+    it('should terminate if CPR is inaccessible', async () => {
+
+        assert.rejects(getSwarms('http://0.0.0.0:1'));
+
+    });
+
+
 });
