@@ -1,1 +1,1 @@
-module.exports = 'https://localhost:80';
+module.exports = 'https://cpr.bluzelle.com';
