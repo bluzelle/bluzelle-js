@@ -14,20 +14,15 @@
 // limitations under the License.
 
 const {swarmClient} = require('./swarmClient/main');
-const default_connection = require('../default_connection');
-
-const Web3 = require('web3');
-
-const abi = require('../BluzelleESR/build/contracts/BluzelleESR.json').abi;
+const {getSwarms} = require('./peerslist');
 
 
 module.exports = {
 
-    bluzelle: async ({ethereum_rpc, contract_address, _connect_to_all, log, ...args}) => {
+    bluzelle: async ({peerslist_endpoint, _connect_to_all, log, ...args}) => {
         
-        ethereum_rpc = ethereum_rpc || default_connection.ethereum_rpc;
-        contract_address = contract_address || default_connection.contract_address;
-        
+        peerslist_endpoint = peerslist_endpoint || default_peerslist_endpoint;
+    
 
 
         // Add timestamp to logs
@@ -55,12 +50,7 @@ module.exports = {
 
         // fetch peerslist data
 
-        const web3js = new Web3(new Web3.providers.HttpProvider(ethereum_rpc));
-
-
-        const BluzelleESR = new web3js.eth.Contract(abi, contract_address);
-
-        let swarms = await getSwarms(BluzelleESR);
+        let swarms = await getSwarms(peerslist_endpoint);
 
         log && log('ESR swarms:', JSON.stringify(swarms, null, 4));
 
@@ -137,63 +127,4 @@ const promise_const = async (p, v) => {
     await p;
     return v;
 };
-
-const getSwarms = async BluzelleESR => {
-
-    let swarmList = await BluzelleESR.methods.getSwarmList().call();
-
-    swarmList = swarmList.filter(v => v !== '');
-
-    const swarmPromises = swarmList.map(swarm => getSwarm(BluzelleESR, swarm));
-
-    const swarms = await Promise.all(swarmPromises);
-
-
-    const out = {};
-
-    swarmList.forEach((swarm, i) => out[swarm] = swarms[i]);
-
-    return out;
-
-};
-
-
-const getSwarm = async (BluzelleESR, swarm) => {
-
-    const swarmInfo = await BluzelleESR.methods.getSwarmInfo(swarm).call();
-
-    swarmInfo.nodelist = swarmInfo.nodelist.filter(v => v !== '');
-
-    const nodePromises = swarmInfo.nodelist.map(node =>
-            BluzelleESR.methods.getNodeInfo(swarm, node).call());
-
-    let nodes = await Promise.all(nodePromises);
-
-    // Convert from bigInts to js ints
-    nodes = nodes.map(node => ({
-        nodeCount: Number(node.nodeCount),
-        nodeHost: node.nodeHost,
-        nodeName: node.nodeName,
-        nodePort: Number(node.nodePort),
-    }));
-
-
-    const out = {
-        peers: {}
-    };
-
-    swarmInfo.nodelist.forEach((node, i) => out.peers[node] = nodes[i]);
-
-    out.metadata = {
-        size: Number(swarmInfo.size),
-        geo: swarmInfo.geo,
-        trust: swarmInfo.trust,
-        swarmtype: swarmInfo.swarmtype,
-        cost: Number(swarmInfo.cost)
-    };
-
-    return out;
-
-};
-
 

@@ -5,9 +5,7 @@
   "main": "lib/bluzelle-node.js",
   "browser": "lib/bluzelle-web.js",
   "scripts": {
-    "setup-daemon": "cp -R ./test-daemon/configs/. ./test-daemon/daemon-build/output/",
-    "test-node": "mocha \"`git rev-parse --show-toplevel`/src/**/*.test.js\" --exit --timeout 8000",
-    "test-browser": "cd `git rev-parse --show-toplevel`/test-browser; npx webpack; open mocha.html",
+    "test-node": "mocha \"`git rev-parse --show-toplevel`/src/**/*.test.js\" --exit",
     "build": "webpack"
   },
   "devDependencies": {
@@ -25,9 +23,9 @@
     "elliptic": "^6.4.1",
     "google-protobuf": "^3.6.1",
     "hash.js": "^1.1.5",
+    "isomorphic-fetch": "^2.2.1",
     "isomorphic-ws": "^4.0.1",
     "lodash": "^4.17.11",
-    "web3": "^1.2.1",
     "ws": "^6.0.0"
   },
   "files": []
