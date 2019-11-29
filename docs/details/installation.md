@@ -51,12 +51,11 @@ The test suite can be run in both node and browser.
 
 ## Deploying a local swarm
 
-1. Build the library
-2. Build `./swarmDB` (See https://github.com/bluzelle/swarmDB)
-3. Run [Ganache GUI](https://www.trufflesuite.com/ganache)
-4. Update `./scripts/deploy-ethereum.js:6` to one of the addresses in Ganache GUI.
-5. `cd scripts`
-6. `./run-swarms.rb 3`. This command will spawn several nodes and print a highlighted contract address.
+1. Build `./swarmDB` (See https://github.com/bluzelle/swarmDB)
+2. Run [Ganache GUI](https://www.trufflesuite.com/ganache)
+3. Update `./scripts/deploy-ethereum.js:6` to one of the addresses in Ganache GUI.
+4. `cd scripts`
+5. `./run-swarms.rb 3`. This command will spawn several nodes and print a highlighted contract address.
 
 
 {% hint style="info" %}
