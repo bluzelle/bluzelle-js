@@ -52,7 +52,7 @@ The test suite can be run in both node and browser.
 ## Deploying a local swarm
 
 1. Run `git submodule init` and `git submodule update`.
-2. Build `./swarmDB` (See https://github.com/bluzelle/swarmDB)
+2. Build `./swarmDB` (See https://github.com/bluzelle/swarmDB). (Note: if building on MacOS, you must apply the patch at the bottom of this document)
 3. Run [Ganache GUI](https://www.trufflesuite.com/ganache)
 4. Update `./scripts/deploy-ethereum.js:6` to one of the addresses in Ganache GUI.
 5. `cd scripts`
@@ -62,3 +62,23 @@ The test suite can be run in both node and browser.
 {% hint style="info" %}
 This process has not been verified to work on linux.
 {% endhint %}
+
+
+
+## SwarmDB patch
+
+```
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d93bd1b..8aff617 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -36,7 +36,7 @@ add_definitions(-DBOOST_ERROR_CODE_HEADER_ONLY)
+ # todo: remove -Wno-implicit-fallthrough once CI moves past gcc 7.4.0...
+ set(warnings "-Wno-deprecated-declarations -Wall -Wextra -Werror -Wpedantic -Wno-implicit-fallthrough")
+ if (APPLE)
+-    set(warnings "${warnings} -Wno-extended-offsetof")
++    set(warnings "${warnings} -Wno-invalid-offsetof")
+ else()
+     # for beast and gcc release builds...
+     if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+```
